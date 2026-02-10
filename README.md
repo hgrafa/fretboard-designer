@@ -1,73 +1,73 @@
-# React + TypeScript + Vite
+<div align="center">
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<img src="public/banner.svg" alt="Scale Training — guitar fretboard visualization" width="100%" />
 
-Currently, two official plugins are available:
+<br/>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**A visual guitar fretboard tool for learning scales, intervals, and box patterns.**
 
-## React Compiler
+Type notes or intervals in a simple text syntax. See them instantly on an interactive fretboard.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![React](https://img.shields.io/badge/react-19-blue?logo=react)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/typescript-strict-blue?logo=typescript)](https://www.typescriptlang.org)
 
-## Expanding the ESLint configuration
+</div>
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🎯 How it works
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Write notes or intervals in the editor and the fretboard updates in real time.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**🎵 Notes mode** — just list the notes:
+```
+C E G Bb
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**🔢 Intervals mode** — set a root, then list intervals:
 ```
+root: A
+1 b3 4 5 b7
+```
+
+The fretboard shows every occurrence of those notes across the neck, with optional labels (note names, intervals, or none) and root highlighting.
+
+## ✨ Features
+
+- 🎹 **Two input modes** — absolute notes or intervals over a root
+- 🏷️ **Toggleable labels** — show note names, interval numbers, or clean dots
+- 🎯 **Root highlighting** — visually distinguish the tonic in red
+- 📦 **Box patterns** — auto-generated positional patterns (2 or 3 notes per string)
+- 🔎 **Adjustable fret range** — focus on any region of the neck
+- 📋 **Copy to clipboard** — one click to copy the fretboard as an image
+
+## 🚀 Getting started
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## 📖 Input syntax
+
+| Input | Mode | Result |
+|---|---|---|
+| `C E G` | Notes | C major triad on the fretboard |
+| `root: G`<br>`1 b3 5 b7` | Intervals | G minor 7 arpeggio |
+| `root: A`<br>`1 2 3 5 6` | Intervals | A major pentatonic scale |
+| `root: E`<br>`1 b3 4 5 b7` | Intervals | E minor pentatonic scale |
+
+**Supported intervals:** `1` `b2` `2` `b3` `3` `4` `b5` `5` `#5` `6` `b7` `7`
+
+**Accepted note formats:** sharps (`C#`, `F#`) and flats (`Db`, `Bb`, `Eb`)
+
+## 🛠 Built with
+
+React · TypeScript · Tailwind CSS · shadcn/ui
+
+## 📄 License
+
+[MIT](LICENSE)

@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f0f0f"/>
+      <stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="260" rx="12" fill="url(#bg)"/>
+
+  <!-- Fretboard area -->
+  <g transform="translate(60, 80)">
+    <!-- Nut -->
+    <rect x="-2" y="-4" width="5" height="108" rx="2" fill="#d4d4d4"/>
+
+    <!-- Fret lines -->
+    <line x1="100" y1="-2" x2="100" y2="102" stroke="#444" stroke-width="1.5"/>
+    <line x1="200" y1="-2" x2="200" y2="102" stroke="#444" stroke-width="1.5"/>
+    <line x1="300" y1="-2" x2="300" y2="102" stroke="#444" stroke-width="1.5"/>
+    <line x1="400" y1="-2" x2="400" y2="102" stroke="#444" stroke-width="1.5"/>
+    <line x1="500" y1="-2" x2="500" y2="102" stroke="#444" stroke-width="1.5"/>
+    <line x1="600" y1="-2" x2="600" y2="102" stroke="#444" stroke-width="1.5"/>
+    <line x1="700" y1="-2" x2="700" y2="102" stroke="#444" stroke-width="1.5"/>
+
+    <!-- Strings -->
+    <line x1="0" y1="0" x2="780" y2="0" stroke="#888" stroke-width="0.7"/>
+    <line x1="0" y1="20" x2="780" y2="20" stroke="#888" stroke-width="0.9"/>
+    <line x1="0" y1="40" x2="780" y2="40" stroke="#888" stroke-width="1.1"/>
+    <line x1="0" y1="60" x2="780" y2="60" stroke="#888" stroke-width="1.3"/>
+    <line x1="0" y1="80" x2="780" y2="80" stroke="#888" stroke-width="1.5"/>
+    <line x1="0" y1="100" x2="780" y2="100" stroke="#888" stroke-width="1.7"/>
+
+    <!-- Fret markers -->
+    <circle cx="150" cy="50" r="4" fill="#333" opacity="0.6"/>
+    <circle cx="350" cy="50" r="4" fill="#333" opacity="0.6"/>
+
+    <!-- Note dots — A minor pentatonic feel -->
+    <!-- Root notes (rose) -->
+    <circle cx="50" cy="100" r="9" fill="#f43f5e"/>
+    <text x="50" y="100" dy="0.35em" text-anchor="middle" fill="white" font-size="8" font-weight="700" font-family="system-ui">A</text>
+
+    <circle cx="350" cy="0" r="9" fill="#f43f5e"/>
+    <text x="350" y="0" dy="0.35em" text-anchor="middle" fill="white" font-size="8" font-weight="700" font-family="system-ui">A</text>
+
+    <circle cx="550" cy="60" r="9" fill="#f43f5e"/>
+    <text x="550" y="60" dy="0.35em" text-anchor="middle" fill="white" font-size="8" font-weight="700" font-family="system-ui">A</text>
+
+    <!-- Regular notes (light) -->
+    <circle cx="50" cy="80" r="9" fill="#e5e5e5"/>
+    <text x="50" y="80" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">D</text>
+
+    <circle cx="150" cy="80" r="9" fill="#e5e5e5"/>
+    <text x="150" y="80" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">E</text>
+
+    <circle cx="50" cy="60" r="9" fill="#e5e5e5"/>
+    <text x="50" y="60" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">G</text>
+
+    <circle cx="150" cy="60" r="9" fill="#e5e5e5"/>
+    <text x="150" y="60" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">A</text>
+
+    <circle cx="150" cy="40" r="9" fill="#e5e5e5"/>
+    <text x="150" y="40" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">C</text>
+
+    <circle cx="50" cy="40" r="9" fill="#e5e5e5"/>
+    <text x="50" y="40" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">B</text>
+
+    <circle cx="50" cy="20" r="9" fill="#e5e5e5"/>
+    <text x="50" y="20" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">E</text>
+
+    <circle cx="150" cy="20" r="9" fill="#e5e5e5"/>
+    <text x="150" y="20" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">G</text>
+
+    <circle cx="50" cy="0" r="9" fill="#e5e5e5"/>
+    <text x="50" y="0" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">G</text>
+
+    <circle cx="150" cy="0" r="9" fill="#e5e5e5"/>
+    <text x="150" y="0" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">A</text>
+
+    <circle cx="250" cy="100" r="9" fill="#e5e5e5"/>
+    <text x="250" y="100" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">C</text>
+
+    <circle cx="250" cy="80" r="9" fill="#e5e5e5"/>
+    <text x="250" y="80" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">G</text>
+
+    <circle cx="350" cy="80" r="9" fill="#e5e5e5"/>
+    <text x="350" y="80" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">A</text>
+
+    <circle cx="250" cy="60" r="9" fill="#e5e5e5"/>
+    <text x="250" y="60" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">C</text>
+
+    <circle cx="350" cy="60" r="9" fill="#e5e5e5"/>
+    <text x="350" y="60" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">D</text>
+
+    <circle cx="250" cy="40" r="9" fill="#e5e5e5"/>
+    <text x="250" y="40" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">D</text>
+
+    <circle cx="350" cy="40" r="9" fill="#e5e5e5"/>
+    <text x="350" y="40" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">E</text>
+
+    <circle cx="250" cy="20" r="9" fill="#e5e5e5"/>
+    <text x="250" y="20" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">A</text>
+
+    <circle cx="350" cy="20" r="9" fill="#e5e5e5"/>
+    <text x="350" y="20" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">C</text>
+
+    <circle cx="250" cy="0" r="9" fill="#e5e5e5"/>
+    <text x="250" y="0" dy="0.35em" text-anchor="middle" fill="#1a1a1a" font-size="8" font-weight="500" font-family="system-ui">C</text>
+
+    <!-- Fading dots on the right -->
+    <circle cx="450" cy="100" r="9" fill="#e5e5e5" opacity="0.5"/>
+    <circle cx="450" cy="80" r="9" fill="#e5e5e5" opacity="0.5"/>
+    <circle cx="550" cy="80" r="9" fill="#e5e5e5" opacity="0.5"/>
+    <circle cx="450" cy="40" r="9" fill="#e5e5e5" opacity="0.4"/>
+    <circle cx="550" cy="40" r="9" fill="#e5e5e5" opacity="0.4"/>
+    <circle cx="450" cy="20" r="9" fill="#e5e5e5" opacity="0.3"/>
+    <circle cx="550" cy="20" r="9" fill="#e5e5e5" opacity="0.3"/>
+    <circle cx="650" cy="0" r="9" fill="#e5e5e5" opacity="0.15"/>
+    <circle cx="650" cy="60" r="9" fill="#e5e5e5" opacity="0.15"/>
+    <circle cx="650" cy="100" r="9" fill="#e5e5e5" opacity="0.15"/>
+  </g>
+
+  <!-- Title -->
+  <text x="450" y="36" text-anchor="middle" fill="white" font-size="22" font-weight="700" font-family="system-ui, -apple-system, sans-serif" letter-spacing="1">🎸 Scale Training</text>
+  <text x="450" y="56" text-anchor="middle" fill="#a1a1aa" font-size="12" font-family="system-ui, -apple-system, sans-serif">write scales · see the fretboard · learn the neck</text>
+
+  <!-- Fret numbers -->
+  <g transform="translate(60, 200)" fill="#555" font-size="10" font-family="system-ui" text-anchor="middle">
+    <text x="50">1</text>
+    <text x="150">2</text>
+    <text x="250">3</text>
+    <text x="350">4</text>
+    <text x="450">5</text>
+    <text x="550">6</text>
+    <text x="650">7</text>
+  </g>
+</svg>
