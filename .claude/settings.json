@@ -3,21 +3,45 @@
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
-        "command": "npx @biomejs/biome check --fix --unsafe \"$CLAUDE_FILE_PATH\" 2>nul || true"
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); [ -n \"$f\" ] && npx @biomejs/biome check --fix --unsafe \"$f\" 2>/dev/null || true"
+          }
+        ]
       }
     ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write",
-        "command": "echo \"$CLAUDE_FILE_PATH\" | findstr /I \"pnpm-lock\" >nul 2>&1 && (echo BLOCK: Do not edit lock files directly. Use pnpm install. && exit 1) || exit 0"
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *pnpm-lock*) echo 'BLOCK: Do not edit lock files directly. Use pnpm install.' >&2; exit 1 ;; esac"
+          }
+        ]
       },
       {
         "matcher": "Bash",
-        "command": "echo \"$CLAUDE_BASH_COMMAND\" | findstr /R /C:\"git merge\" >nul 2>&1 && (echo BLOCK: git merge is not allowed. Use PRs instead. && exit 1) || exit 0"
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "c=$(jq -r '.tool_input.command // empty'); case \"$c\" in *\"git merge\"*) echo 'BLOCK: git merge is not allowed. Use PRs instead.' >&2; exit 1 ;; esac"
+          }
+        ]
       },
       {
         "matcher": "Bash",
-        "command": "echo \"$CLAUDE_BASH_COMMAND\" | findstr /R /C:\"git push\" >nul 2>&1 && (echo \"$CLAUDE_BASH_COMMAND\" | findstr /I /R /C:\"main\" /C:\"master\" /C:\"production\" /C:\"prod\" >nul 2>&1) && (echo BLOCK: Push to protected branches [main/master/production/prod] is not allowed. Push to a feature branch instead. && exit 1) || exit 0"
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "c=$(jq -r '.tool_input.command // empty'); case \"$c\" in *\"git push\"*) case \"$c\" in *main*|*master*|*production*|*prod*) echo 'BLOCK: Push to protected branches [main/master/production/prod] is not allowed. Push to a feature branch instead.' >&2; exit 1 ;; esac ;; esac"
+          }
+        ]
       }
     ]
   },
