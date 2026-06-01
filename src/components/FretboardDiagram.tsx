@@ -1,4 +1,5 @@
 import { DOUBLE_DOT_FRETS, SINGLE_DOT_FRETS } from "@/core/fretboard";
+import { formatSpelled } from "@/core/notes";
 import type { DisplayMode, FretPosition, NoteName } from "@/types/music";
 
 export interface FretboardDimensions {
@@ -121,7 +122,7 @@ export function FretboardDiagram({
 	function dotLabel(pos: FretPosition): string {
 		if (displayMode === "none") return "";
 		if (displayMode === "interval") return pos.interval ?? "";
-		return pos.note;
+		return formatSpelled(pos.spelled);
 	}
 
 	const markerCy = d.topPadding + ((stringCount - 1) * d.stringSpacing) / 2;

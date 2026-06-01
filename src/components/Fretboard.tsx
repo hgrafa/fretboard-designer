@@ -4,6 +4,7 @@ import {
 	FretboardDiagram,
 	MAIN_DIMENSIONS,
 } from "@/components/FretboardDiagram";
+import { formatSpelled, spelledToPitchClass } from "@/core/notes";
 import {
 	useDerived,
 	useDisplay,
@@ -44,14 +45,16 @@ export function Fretboard() {
 				dimensions={d}
 				displayMode={displayMode}
 				highlightRoot={highlightRoot}
-				rootPitchClass={noteSet?.root}
+				rootPitchClass={
+					noteSet?.root ? spelledToPitchClass(noteSet.root) : undefined
+				}
 				onHoverPosition={(data) =>
 					setTooltip(
 						data
 							? {
 									x: data.x,
 									y: data.y,
-									note: data.pos.note,
+									note: formatSpelled(data.pos.spelled),
 									interval: data.pos.interval,
 								}
 							: null,

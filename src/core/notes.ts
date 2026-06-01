@@ -1,4 +1,9 @@
-import type { IntervalName, NoteName } from "@/types/music";
+import type {
+	IntervalName,
+	Letter,
+	NoteName,
+	SpelledNote,
+} from "@/types/music";
 
 export const CHROMATIC: NoteName[] = [
 	"C",

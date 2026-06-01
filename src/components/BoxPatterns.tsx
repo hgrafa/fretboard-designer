@@ -2,6 +2,7 @@ import {
 	BOX_DIMENSIONS,
 	FretboardDiagram,
 } from "@/components/FretboardDiagram";
+import { spelledToPitchClass } from "@/core/notes";
 import {
 	useDerived,
 	useDisplay,
@@ -79,7 +80,9 @@ export function BoxPatterns() {
 							stringCount={tuning.length}
 							displayMode={displayMode}
 							highlightRoot={highlightRoot}
-							rootPitchClass={noteSet.root}
+							rootPitchClass={
+								noteSet.root ? spelledToPitchClass(noteSet.root) : undefined
+							}
 						/>
 					</div>
 				))}
