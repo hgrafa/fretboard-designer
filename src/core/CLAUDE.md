@@ -1,28 +1,33 @@
 # Core — Music Theory Logic
 
-Pure TypeScript module. No React, no DOM dependencies. Everything here must be unit-testable in isolation.
+Pure TypeScript. No React, no DOM. Everything here is unit-testable in isolation.
 
 ## Modules
 
 ### notes.ts
-- Chromatic scale: `['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']`
-- Flat-to-sharp normalization: `Db→C#`, `Eb→D#`, `Gb→F#`, `Ab→G#`, `Bb→A#`
-- Note math: transpose, interval between two notes, enharmonic equivalence
+- `CHROMATIC` pitch classes (sharps): `C C# D D# E F F# G G# A A# B`.
+- `normalizeNote` (flats/case → sharp pitch class), `transpose`, `intervalBetween`, `resolveInterval`, `isValidInterval`.
+- **Spelling layer:** `SpelledNote = { letter, accidental }`; `spelledToPitchClass`, `formatSpelled`, `parseSpelledNote` (preserves written accidentals), `spellDegree` (degree-based spelling), `INTERVAL_DEGREE`.
 
 ### parser.ts
-Two input modes:
-1. **Notes mode**: `"C E G Bb"` → `NoteSet { notes: ['C', 'E', 'G', 'Bb'], root: undefined }`
-2. **Intervals mode**: `root: G` + `"1 b3 4 5 b7"` → resolves intervals to absolute notes
-
-Interval notation: `1, b2, 2, b3, 3, 4, b5, 5, b5, 6, b7, 7` (chromatic degrees)
+- Notes mode `"C E G Bb"` → preserves written accidentals.
+- Intervals mode `root: G` + `1 b3 4 5 b7` → each degree spelled on its own letter via `spellDegree`.
+- Output: `NoteSet { notes: SpelledNote[], root?: SpelledNote }`. Dedup is by pitch class.
 
 ### fretboard.ts
-- Tuning is passed in as `NoteName[]` (low→high, index 0 = lowest string); no hardcoded tuning
-- Instrument presets live in `instruments.ts` (`INSTRUMENTS`, `DEFAULT_INSTRUMENT`, `matchInstrument`)
-- Maps a set of notes to all positions on the fretboard: `(notes, tuning) → Position[]`
-- String count is always `tuning.length`; box patterns reference the lowest string
-- Position: `{ string: number, fret: number, note: string, interval?: string }`
-- Fret range: 0–22
+- Tuning passed in as `NoteName[]` (low→high, index 0 = lowest string); no hardcoded tuning.
+- `mapNotesToFretboard(noteSet, tuning, range)` matches positions by pitch class and stamps both `note` (pitch class) and `spelled` (label) on each `FretPosition`.
+- `generateBoxPatterns` references the lowest string. (Known limitation: guitar-scale heuristic; out of scope to fix here.)
 
-## Key Constraint
-Internal representation always uses sharps (C#, not Db). Parser accepts both, normalizes on input.
+### pitch.ts
+- `Pitch = { note, octave }` — absolute sounding pitch. Spelling is deliberately NOT part of Pitch (it's context-dependent).
+- `assignOctaves` derives octaves from a low→high tuning; `getPitchAtPosition`; `midiNumber`.
+- Foundation for future audio/sorting — nothing consumes it yet.
+
+## Key invariant
+Pitch class is the math identity. Spelling and octave are additive layers on top.
+
+## What NOT to do
+- Don't add React/DOM imports here.
+- Don't collapse spelling back to sharps in core math.
+- Don't store octaves — they're derived from the tuning.
