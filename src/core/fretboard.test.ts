@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { NoteSet, Tuning } from "@/types/music";
+import type { NoteSet, SpelledNote, Tuning } from "@/types/music";
 import {
 	generateBoxPatterns,
 	getNoteAtPosition,
@@ -8,6 +8,10 @@ import {
 
 const GUITAR: Tuning = ["E", "A", "D", "G", "B", "E"];
 const BASS4: Tuning = ["E", "A", "D", "G"];
+
+function n(...letters: string[]): SpelledNote[] {
+	return letters.map((l) => ({ letter: l as never, accidental: 0 }));
+}
 
 describe("getNoteAtPosition", () => {
 	it("returns the open note at fret 0", () => {
@@ -23,14 +27,14 @@ describe("getNoteAtPosition", () => {
 
 describe("mapNotesToFretboard", () => {
 	it("uses string numbers 1..stringCount with 1 = highest pitch", () => {
-		const noteSet: NoteSet = { notes: ["E"] };
+		const noteSet: NoteSet = { notes: n("E") };
 		const positions = mapNotesToFretboard(noteSet, GUITAR, [0, 0]);
 		const strings = positions.map((p) => p.string).sort((a, b) => a - b);
 		expect(strings).toEqual([1, 6]);
 	});
 
 	it("adapts to a 4-string tuning", () => {
-		const noteSet: NoteSet = { notes: ["E", "A", "D", "G"] };
+		const noteSet: NoteSet = { notes: n("E", "A", "D", "G") };
 		const positions = mapNotesToFretboard(noteSet, BASS4, [0, 0]);
 		expect(positions.map((p) => p.string).sort((a, b) => a - b)).toEqual([
 			1, 2, 3, 4,
@@ -40,7 +44,7 @@ describe("mapNotesToFretboard", () => {
 	it("places higher-pitched strings at lower string numbers", () => {
 		// On guitar, open B is the 2nd-highest string → string 2; open low E → string 6
 		const positions = mapNotesToFretboard(
-			{ notes: ["B", "E"] },
+			{ notes: n("B", "E") },
 			GUITAR,
 			[0, 0],
 		);
@@ -55,16 +59,33 @@ describe("mapNotesToFretboard", () => {
 	});
 
 	it("computes intervals relative to the root", () => {
-		const noteSet: NoteSet = { notes: ["E", "G"], root: "E" };
+		const noteSet: NoteSet = {
+			notes: n("E", "G"),
+			root: { letter: "E", accidental: 0 },
+		};
 		const positions = mapNotesToFretboard(noteSet, GUITAR, [0, 3]);
 		const g = positions.find((p) => p.note === "G");
 		expect(g?.interval).toBe("b3");
+	});
+
+	it("stamps the spelled note on each position", () => {
+		const positions = mapNotesToFretboard(
+			{ notes: [{ letter: "D", accidental: -1 }] },
+			GUITAR,
+			[0, 12],
+		);
+		expect(positions.length).toBeGreaterThan(0);
+		expect(positions.every((p) => p.note === "C#")).toBe(true);
+		expect(positions.every((p) => p.spelled.letter === "D")).toBe(true);
 	});
 });
 
 describe("generateBoxPatterns", () => {
 	it("generates patterns referenced off the lowest string for any tuning", () => {
-		const noteSet: NoteSet = { notes: ["A", "C", "D", "E", "G"], root: "A" };
+		const noteSet: NoteSet = {
+			notes: n("A", "C", "D", "E", "G"),
+			root: { letter: "A", accidental: 0 },
+		};
 		const guitarBoxes = generateBoxPatterns(noteSet, GUITAR, 2);
 		const bassBoxes = generateBoxPatterns(noteSet, BASS4, 2);
 		expect(guitarBoxes.length).toBeGreaterThan(0);
