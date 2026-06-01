@@ -3,9 +3,15 @@ import type {
 	FretPosition,
 	NoteName,
 	NoteSet,
+	SpelledNote,
 	Tuning,
 } from "@/types/music";
-import { CHROMATIC, intervalBetween, noteIndex } from "./notes";
+import {
+	CHROMATIC,
+	intervalBetween,
+	noteIndex,
+	spelledToPitchClass,
+} from "./notes";
 
 const MAX_FRETS = 22;
 
@@ -27,21 +33,28 @@ export function mapNotesToFretboard(
 ): FretPosition[] {
 	const [minFret, maxFret] = fretRange;
 	const positions: FretPosition[] = [];
-	const noteSetLookup = new Set(noteSet.notes);
 	const stringCount = tuning.length;
+
+	const spellingByPc = new Map<NoteName, SpelledNote>();
+	for (const s of noteSet.notes) {
+		spellingByPc.set(spelledToPitchClass(s), s);
+	}
+	const rootPc = noteSet.root ? spelledToPitchClass(noteSet.root) : undefined;
 
 	for (let stringIdx = 0; stringIdx < stringCount; stringIdx++) {
 		for (let fret = minFret; fret <= Math.min(maxFret, MAX_FRETS); fret++) {
 			const note = getNoteAtPosition(tuning, stringIdx, fret);
-			if (noteSetLookup.has(note)) {
+			const spelled = spellingByPc.get(note);
+			if (spelled) {
 				const position: FretPosition = {
 					string: stringCount - stringIdx, // 1 = highest pitch
 					fret,
 					note,
+					spelled,
 				};
 
-				if (noteSet.root) {
-					position.interval = intervalBetween(noteSet.root, note);
+				if (rootPc) {
+					position.interval = intervalBetween(rootPc, note);
 				}
 
 				positions.push(position);
