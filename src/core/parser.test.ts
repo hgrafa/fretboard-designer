@@ -48,6 +48,10 @@ describe("parseInput — intervals mode", () => {
 		]);
 	});
 
+	it("caps accidentals at one, avoiding double flats (Db b2 → Db D)", () => {
+		expect(labels(parseInput("root: Db\n1 b2"))).toEqual(["Db", "D"]);
+	});
+
 	it("rejects an invalid interval", () => {
 		expect(parseInput("root: A\n1 b9")).toEqual({
 			success: false,

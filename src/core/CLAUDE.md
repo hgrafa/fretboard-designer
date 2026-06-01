@@ -8,6 +8,7 @@ Pure TypeScript. No React, no DOM. Everything here is unit-testable in isolation
 - `CHROMATIC` pitch classes (sharps): `C C# D D# E F F# G G# A A# B`.
 - `normalizeNote` (flats/case → sharp pitch class), `transpose`, `intervalBetween`, `resolveInterval`, `isValidInterval`.
 - **Spelling layer:** `SpelledNote = { letter, accidental }`; `spelledToPitchClass`, `formatSpelled`, `parseSpelledNote` (preserves written accidentals), `spellDegree` (degree-based spelling), `INTERVAL_DEGREE`.
+  - `spellDegree` caps accidentals at a single `#`/`b`: if strict degree spelling would need a double accidental (e.g. the b2 of Db = E𝄫), it falls back to the simplest enharmonic spelling, following the root's leaning (flat root → flats, sharp root → sharps). This trades a repeated letter (Db D) for readability.
 
 ### parser.ts
 - Notes mode `"C E G Bb"` → preserves written accidentals.

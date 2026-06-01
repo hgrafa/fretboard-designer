@@ -155,9 +155,49 @@ export function parseSpelledNote(input: string): SpelledNote | null {
 	return { letter, accidental };
 }
 
+// Simplest single-accidental spelling of each pitch class (index = pitch class,
+// C = 0). Used as a fallback when strict degree spelling would need a double
+// accidental (e.g. the b2 of Db would be E𝄫). Two flavors so the fallback can
+// follow the root's leaning; white keys are natural in both.
+const FLAT_SPELLING: SpelledNote[] = [
+	{ letter: "C", accidental: 0 },
+	{ letter: "D", accidental: -1 },
+	{ letter: "D", accidental: 0 },
+	{ letter: "E", accidental: -1 },
+	{ letter: "E", accidental: 0 },
+	{ letter: "F", accidental: 0 },
+	{ letter: "G", accidental: -1 },
+	{ letter: "G", accidental: 0 },
+	{ letter: "A", accidental: -1 },
+	{ letter: "A", accidental: 0 },
+	{ letter: "B", accidental: -1 },
+	{ letter: "B", accidental: 0 },
+];
+
+const SHARP_SPELLING: SpelledNote[] = [
+	{ letter: "C", accidental: 0 },
+	{ letter: "C", accidental: 1 },
+	{ letter: "D", accidental: 0 },
+	{ letter: "D", accidental: 1 },
+	{ letter: "E", accidental: 0 },
+	{ letter: "F", accidental: 0 },
+	{ letter: "F", accidental: 1 },
+	{ letter: "G", accidental: 0 },
+	{ letter: "G", accidental: 1 },
+	{ letter: "A", accidental: 0 },
+	{ letter: "A", accidental: 1 },
+	{ letter: "B", accidental: 0 },
+];
+
 // Spell a scale degree (1..7) from a root, choosing the accidental so the
 // result equals `targetPitchClass`. Letter = root letter advanced (degree-1)
 // steps; accidental = signed distance from that letter's natural pitch class.
+//
+// Accidentals are capped at a single sharp/flat: if strict degree spelling
+// would need a double accidental, fall back to the simplest enharmonic
+// spelling, following the root's leaning (flat root → flats, sharp root →
+// sharps, natural root → flats). This trades a "repeated letter" (e.g. Db D)
+// for avoiding unreadable double accidentals (e.g. Db E𝄫).
 export function spellDegree(
 	root: SpelledNote,
 	degree: number,
@@ -169,6 +209,12 @@ export function spellDegree(
 	const targetPc = noteIndex(targetPitchClass);
 	let accidental = (((targetPc - naturalPc) % 12) + 12) % 12;
 	if (accidental > 6) accidental -= 12;
+
+	if (Math.abs(accidental) > 1) {
+		const table = root.accidental > 0 ? SHARP_SPELLING : FLAT_SPELLING;
+		return { ...table[targetPc] };
+	}
+
 	return { letter, accidental };
 }
 

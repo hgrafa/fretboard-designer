@@ -88,4 +88,27 @@ describe("spelling helpers", () => {
 		const a = { letter: "A", accidental: 0 } as const;
 		expect(spellDegree(a, 3, "C")).toEqual({ letter: "C", accidental: 0 });
 	});
+
+	it("caps at single accidentals instead of emitting double accidentals", () => {
+		// b2 of Db is the pitch D; strict degree spelling would be E𝄫 — fall back to D
+		const db = { letter: "D", accidental: -1 } as const;
+		expect(spellDegree(db, 2, "D")).toEqual({ letter: "D", accidental: 0 });
+		// 3rd of D# is the pitch G; strict spelling would be Fx — fall back to G
+		const dSharp = { letter: "D", accidental: 1 } as const;
+		expect(spellDegree(dSharp, 3, "G")).toEqual({ letter: "G", accidental: 0 });
+	});
+
+	it("follows the root's leaning when falling back on a black key", () => {
+		// Same overflow target (F#/Gb), spelled per the root's accidental direction
+		const flatRoot = { letter: "A", accidental: 0 } as const; // natural → flats
+		expect(spellDegree(flatRoot, 5, "F#")).toEqual({
+			letter: "G",
+			accidental: -1,
+		});
+		const sharpRoot = { letter: "A", accidental: 1 } as const; // sharp → sharps
+		expect(spellDegree(sharpRoot, 5, "F#")).toEqual({
+			letter: "F",
+			accidental: 1,
+		});
+	});
 });
