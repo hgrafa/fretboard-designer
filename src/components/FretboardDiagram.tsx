@@ -79,7 +79,6 @@ export interface FretboardDiagramProps {
 	onHoverPosition?: (
 		data: { x: number; y: number; pos: FretPosition } | null,
 	) => void;
-	onSelectPosition?: (pos: FretPosition) => void;
 }
 
 export function FretboardDiagram({
@@ -92,7 +91,6 @@ export function FretboardDiagram({
 	highlightRoot,
 	rootPitchClass,
 	onHoverPosition,
-	onSelectPosition,
 }: FretboardDiagramProps) {
 	const fretCount = maxFret - minFret;
 	const showNut = minFret === 0;
@@ -242,7 +240,7 @@ export function FretboardDiagram({
 				const cy = stringY(pos.string);
 				const root = isRoot(pos);
 				const label = dotLabel(pos);
-				const interactive = Boolean(onHoverPosition || onSelectPosition);
+				const interactive = Boolean(onHoverPosition);
 
 				return (
 					<g
@@ -256,7 +254,6 @@ export function FretboardDiagram({
 						onMouseLeave={
 							onHoverPosition ? () => onHoverPosition(null) : undefined
 						}
-						onClick={onSelectPosition ? () => onSelectPosition(pos) : undefined}
 					>
 						<circle
 							cx={cx}

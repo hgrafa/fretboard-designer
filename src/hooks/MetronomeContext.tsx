@@ -10,7 +10,7 @@ import {
 } from "react";
 import type { OutputDevice } from "@/audio/devices";
 import { Metronome } from "@/audio/metronome";
-import { clampBpm } from "@/audio/metronomeMath";
+import { clampBpm, DEFAULT_BPM } from "@/audio/metronomeMath";
 import { useAudioDevices } from "./AudioDevicesContext";
 
 interface MetronomeState {
@@ -31,6 +31,7 @@ interface MetronomeState {
 	setAccent: (a: boolean) => void;
 	setDeviceId: (id: string) => void;
 	refreshDevices: () => Promise<void>;
+	reset: () => void;
 }
 
 const MetronomeContext = createContext<MetronomeState | null>(null);
@@ -41,7 +42,7 @@ export function MetronomeProvider({ children }: { children: ReactNode }) {
 	const engine = engineRef.current;
 
 	const [isPlaying, setIsPlaying] = useState(false);
-	const [bpm, setBpmState] = useState(100);
+	const [bpm, setBpmState] = useState(DEFAULT_BPM);
 	const [beatsPerBar, setBeatsPerBarState] = useState(4);
 	const [volume, setVolumeState] = useState(0.7);
 	const [accent, setAccentState] = useState(true);
@@ -89,6 +90,11 @@ export function MetronomeProvider({ children }: { children: ReactNode }) {
 		},
 		[engine],
 	);
+
+	const reset = useCallback(() => {
+		setBpmState(DEFAULT_BPM);
+		engine.configure({ bpm: DEFAULT_BPM });
+	}, [engine]);
 
 	const setBeatsPerBar = useCallback(
 		(n: number) => {
@@ -140,6 +146,7 @@ export function MetronomeProvider({ children }: { children: ReactNode }) {
 			setAccent,
 			setDeviceId,
 			refreshDevices,
+			reset,
 		}),
 		[
 			isPlaying,
@@ -158,6 +165,7 @@ export function MetronomeProvider({ children }: { children: ReactNode }) {
 			setAccent,
 			setDeviceId,
 			refreshDevices,
+			reset,
 		],
 	);
 

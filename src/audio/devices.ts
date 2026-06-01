@@ -31,14 +31,20 @@ export function isOutputRoutingSupported(): boolean {
 }
 
 // Apply a sink to a context if the browser supports it; otherwise no-op so the
-// caller still plays through the default device.
+// caller still plays through the default device. A failed setSinkId (e.g. the
+// device vanished, or permission is missing) must NOT break playback — we log
+// and fall back to whatever sink the context already has.
 export async function applySink(
 	ctx: AudioContext,
 	deviceId: string,
 ): Promise<void> {
 	const sinkable = ctx as SinkCapableAudioContext;
 	if (typeof sinkable.setSinkId !== "function") return;
-	await sinkable.setSinkId(deviceId);
+	try {
+		await sinkable.setSinkId(deviceId);
+	} catch (err) {
+		console.warn("Could not route audio to the selected device:", err);
+	}
 }
 
 // Enumerate audio output devices. Labels are only populated after the user has

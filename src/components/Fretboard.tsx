@@ -5,7 +5,6 @@ import {
 	MAIN_DIMENSIONS,
 } from "@/components/FretboardDiagram";
 import { formatSpelled, spelledToPitchClass } from "@/core/notes";
-import { useNotesAudio } from "@/hooks/NotesAudioContext";
 import {
 	useDerived,
 	useDisplay,
@@ -25,7 +24,6 @@ export function Fretboard() {
 	const { displayMode, highlightRoot, fretRange } = useDisplay();
 	const { noteSet } = useInput();
 	const { tuning } = useInstrument();
-	const { playPosition } = useNotesAudio();
 	const [tooltip, setTooltip] = useState<TooltipData | null>(null);
 
 	const [minFret, maxFret] = fretRange;
@@ -62,7 +60,6 @@ export function Fretboard() {
 							: null,
 					)
 				}
-				onSelectPosition={playPosition}
 			/>
 			{tooltip && (
 				<svg

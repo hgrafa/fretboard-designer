@@ -6,6 +6,7 @@ import {
 	MAX_BPM,
 	MIN_BPM,
 	nextBeat,
+	tempoMarking,
 } from "./metronomeMath";
 
 describe("beatInterval", () => {
@@ -51,5 +52,23 @@ describe("clampBpm", () => {
 	});
 	it("falls back to the minimum for NaN", () => {
 		expect(clampBpm(Number.NaN)).toBe(MIN_BPM);
+	});
+});
+
+describe("tempoMarking", () => {
+	it("labels 97 BPM as Allegretto (matches the reference)", () => {
+		expect(tempoMarking(97)).toBe("Allegretto");
+	});
+	it("labels slow tempos", () => {
+		expect(tempoMarking(40)).toBe("Grave");
+		expect(tempoMarking(60)).toBe("Largo");
+	});
+	it("labels fast tempos", () => {
+		expect(tempoMarking(130)).toBe("Allegro");
+		expect(tempoMarking(200)).toBe("Prestissimo");
+	});
+	it("uses inclusive upper bounds", () => {
+		expect(tempoMarking(95)).toBe("Moderato");
+		expect(tempoMarking(96)).toBe("Allegretto");
 	});
 });

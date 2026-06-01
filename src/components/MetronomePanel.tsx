@@ -1,218 +1,145 @@
-import { Minus, Pause, Play, Plus, RefreshCw } from "lucide-react";
-import { MAX_BPM, MIN_BPM } from "@/audio/metronomeMath";
-import { Button } from "@/components/ui/button";
+import { Minus, Pause, Play, Plus } from "lucide-react";
+import { tempoMarking } from "@/audio/metronomeMath";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { useMetronome } from "@/hooks/MetronomeContext";
 
-const BEATS_PER_BAR = [1, 2, 3, 4, 5, 6, 7] as const;
+const BEATS_PER_BAR = [2, 3, 4, 5, 6] as const;
 
 export function MetronomePanel() {
 	const {
 		isPlaying,
 		bpm,
 		beatsPerBar,
-		volume,
 		accent,
 		activeBeat,
-		routingSupported,
-		devices,
-		deviceId,
 		toggle,
 		setBpm,
 		setBeatsPerBar,
-		setVolume,
-		setAccent,
-		setDeviceId,
-		refreshDevices,
+		reset,
 	} = useMetronome();
 
 	return (
-		<Dialog>
-			<DialogTrigger asChild>
+		<Popover>
+			<PopoverTrigger asChild>
 				<button
 					type="button"
-					className="flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted"
+					className="flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted data-[state=open]:border-foreground/30 data-[state=open]:text-foreground"
 				>
 					<Play className="size-3.5" />
 					Metronome
 				</button>
-			</DialogTrigger>
-			<DialogContent className="sm:max-w-md">
-				<DialogHeader>
-					<DialogTitle>Metronome</DialogTitle>
-					<DialogDescription>
-						A steady click for practice. Choose where it plays below.
-					</DialogDescription>
-				</DialogHeader>
-
-				<div className="space-y-6 py-2">
-					{/* Beat indicator */}
-					<div className="flex items-center justify-center gap-2">
-						{Array.from({ length: beatsPerBar }, (_, i) => (
+			</PopoverTrigger>
+			<PopoverContent
+				align="start"
+				sideOffset={10}
+				className="w-72 overflow-hidden rounded-3xl border-zinc-800 bg-zinc-950 p-6 text-zinc-50 shadow-2xl"
+			>
+				{/* Beat indicator */}
+				<div className="mb-5 flex items-center justify-center gap-2">
+					{Array.from({ length: beatsPerBar }, (_, i) => {
+						const on = activeBeat === i;
+						const downbeat = i === 0 && accent;
+						return (
 							<span
 								// biome-ignore lint/suspicious/noArrayIndexKey: beats are a fixed positional sequence; index is their identity
 								key={i}
-								className={`size-3 rounded-full transition-colors ${
-									activeBeat === i
-										? i === 0 && accent
-											? "bg-primary"
-											: "bg-foreground"
-										: "bg-muted"
+								className={`h-1.5 rounded-full transition-all duration-150 ${
+									on
+										? `${downbeat ? "bg-amber-400" : "bg-zinc-100"} w-6`
+										: "w-3 bg-zinc-700"
 								}`}
 							/>
-						))}
-					</div>
+						);
+					})}
+				</div>
 
-					{/* BPM */}
-					<div className="space-y-2">
-						<div className="flex items-baseline justify-between">
-							<Label>Tempo</Label>
-							<span className="text-2xl font-bold tabular-nums">
-								{bpm}
-								<span className="ml-1 text-xs font-normal text-muted-foreground">
-									BPM
-								</span>
-							</span>
-						</div>
-						<div className="flex items-center gap-3">
-							<Button
-								variant="outline"
-								size="icon"
-								onClick={() => setBpm(bpm - 1)}
-								aria-label="Decrease tempo"
-							>
-								<Minus className="size-4" />
-							</Button>
-							<Slider
-								value={[bpm]}
-								min={MIN_BPM}
-								max={MAX_BPM}
-								step={1}
-								onValueChange={([v]) => setBpm(v)}
-								aria-label="Tempo in beats per minute"
-							/>
-							<Button
-								variant="outline"
-								size="icon"
-								onClick={() => setBpm(bpm + 1)}
-								aria-label="Increase tempo"
-							>
-								<Plus className="size-4" />
-							</Button>
-						</div>
-					</div>
+				{/* Title + tempo marking */}
+				<div className="mb-4 text-center">
+					<p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-zinc-400">
+						BPM
+					</p>
+					<p className="mt-0.5 text-sm font-medium text-amber-400">
+						{tempoMarking(bpm)}
+					</p>
+				</div>
 
-					{/* Beats per bar */}
-					<div className="space-y-2">
-						<Label>Beats per bar</Label>
-						<div className="flex rounded-md border border-input">
-							{BEATS_PER_BAR.map((n) => (
-								<button
-									key={n}
-									type="button"
-									onClick={() => setBeatsPerBar(n)}
-									className={`flex-1 px-2 py-1.5 text-xs font-medium transition-colors first:rounded-l-md last:rounded-r-md ${
-										beatsPerBar === n
-											? "bg-primary text-primary-foreground"
-											: "bg-background text-muted-foreground hover:bg-muted"
-									}`}
-								>
-									{n}
-								</button>
-							))}
-						</div>
+				{/* Stepper */}
+				<div className="flex items-stretch gap-2">
+					<button
+						type="button"
+						onClick={() => setBpm(bpm - 1)}
+						aria-label="Decrease tempo"
+						className="flex w-14 items-center justify-center rounded-2xl bg-zinc-800 text-zinc-200 transition-colors hover:bg-zinc-700 active:bg-zinc-600"
+					>
+						<Minus className="size-5" />
+					</button>
+					<div className="flex flex-1 items-center justify-center rounded-2xl bg-zinc-900 py-4 ring-1 ring-inset ring-zinc-800">
+						<span className="text-6xl font-bold leading-none tabular-nums tracking-tight">
+							{bpm}
+						</span>
 					</div>
+					<button
+						type="button"
+						onClick={() => setBpm(bpm + 1)}
+						aria-label="Increase tempo"
+						className="flex w-14 items-center justify-center rounded-2xl bg-zinc-800 text-zinc-200 transition-colors hover:bg-zinc-700 active:bg-zinc-600"
+					>
+						<Plus className="size-5" />
+					</button>
+				</div>
 
-					{/* Accent toggle + volume */}
-					<div className="flex items-center justify-between gap-4">
+				{/* Transport */}
+				<button
+					type="button"
+					onClick={toggle}
+					className={`mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-semibold transition-colors ${
+						isPlaying
+							? "bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
+							: "bg-amber-400 text-zinc-950 hover:bg-amber-300"
+					}`}
+				>
+					{isPlaying ? (
+						<>
+							<Pause className="size-4" /> Stop
+						</>
+					) : (
+						<>
+							<Play className="size-4" /> Start
+						</>
+					)}
+				</button>
+
+				{/* Beats per bar */}
+				<div className="mt-5 flex items-center justify-center gap-1.5">
+					{BEATS_PER_BAR.map((n) => (
 						<button
+							key={n}
 							type="button"
-							onClick={() => setAccent(!accent)}
-							className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-								accent
-									? "border-primary bg-primary text-primary-foreground"
-									: "border-input bg-background text-muted-foreground hover:bg-muted"
+							onClick={() => setBeatsPerBar(n)}
+							className={`size-8 rounded-lg text-xs font-medium tabular-nums transition-colors ${
+								beatsPerBar === n
+									? "bg-zinc-100 text-zinc-950"
+									: "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
 							}`}
 						>
-							Accent downbeat
+							{n}
 						</button>
-						<div className="flex flex-1 items-center gap-2">
-							<Label className="text-xs text-muted-foreground">Volume</Label>
-							<Slider
-								value={[volume]}
-								min={0}
-								max={1}
-								step={0.01}
-								onValueChange={([v]) => setVolume(v)}
-								aria-label="Volume"
-							/>
-						</div>
-					</div>
-
-					{/* Output device */}
-					<div className="space-y-2">
-						<Label>Output device</Label>
-						{routingSupported ? (
-							<div className="flex items-center gap-2">
-								<Select value={deviceId} onValueChange={setDeviceId}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="System default" />
-									</SelectTrigger>
-									<SelectContent>
-										{devices.map((d) => (
-											<SelectItem key={d.deviceId} value={d.deviceId}>
-												{d.label}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<Button
-									variant="outline"
-									size="icon"
-									onClick={() => void refreshDevices()}
-									aria-label="Refresh devices and show names"
-								>
-									<RefreshCw className="size-4" />
-								</Button>
-							</div>
-						) : (
-							<p className="text-xs text-muted-foreground">
-								This browser plays through the system default output. Per-device
-								routing needs Chrome or Edge.
-							</p>
-						)}
-					</div>
-
-					{/* Transport */}
-					<Button onClick={toggle} className="w-full" size="lg">
-						{isPlaying ? (
-							<>
-								<Pause className="size-4" /> Stop
-							</>
-						) : (
-							<>
-								<Play className="size-4" /> Start
-							</>
-						)}
-					</Button>
+					))}
 				</div>
-			</DialogContent>
-		</Dialog>
+
+				{/* Reset */}
+				<button
+					type="button"
+					onClick={reset}
+					className="mt-4 w-full text-center text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-300"
+				>
+					Reset
+				</button>
+			</PopoverContent>
+		</Popover>
 	);
 }
