@@ -1,40 +1,61 @@
 import { describe, expect, it } from "vitest";
+import { formatSpelled } from "./notes";
 import { parseInput } from "./parser";
 
+function labels(out: ReturnType<typeof parseInput>): string[] {
+	if (!out.success) throw new Error(`expected success, got ${out.error}`);
+	return out.noteSet.notes.map(formatSpelled);
+}
+
 describe("parseInput — notes mode", () => {
-	it("parses a space/comma separated note list", () => {
-		const out = parseInput("C E G Bb");
-		expect(out.success).toBe(true);
-		if (out.success) {
-			expect(out.noteSet.notes).toEqual(["C", "E", "G", "A#"]);
-			expect(out.noteSet.root).toBeUndefined();
-		}
+	it("preserves the written accidentals", () => {
+		expect(labels(parseInput("C E G Bb"))).toEqual(["C", "E", "G", "Bb"]);
 	});
 
-	it("dedupes repeated notes", () => {
-		const out = parseInput("C C E");
-		expect(out.success && out.noteSet.notes).toEqual(["C", "E"]);
+	it("dedupes by pitch class", () => {
+		expect(labels(parseInput("C C E"))).toEqual(["C", "E"]);
 	});
 
 	it("rejects an invalid note", () => {
-		const out = parseInput("C H");
-		expect(out).toEqual({ success: false, error: 'Invalid note: "H"' });
+		expect(parseInput("C H")).toEqual({
+			success: false,
+			error: 'Invalid note: "H"',
+		});
 	});
 });
 
 describe("parseInput — intervals mode", () => {
-	it("resolves intervals against a root", () => {
+	it("spells each degree on its own letter (A minor pentatonic)", () => {
 		const out = parseInput("root: A\n1 b3 4 5 b7");
-		expect(out.success).toBe(true);
-		if (out.success) {
-			expect(out.noteSet.notes).toEqual(["A", "C", "D", "E", "G"]);
-			expect(out.noteSet.root).toBe("A");
-		}
+		expect(labels(out)).toEqual(["A", "C", "D", "E", "G"]);
+		if (out.success)
+			expect(out.noteSet.root).toEqual({ letter: "A", accidental: 0 });
+	});
+
+	it("uses flats for a flat key (Db major)", () => {
+		expect(labels(parseInput("root: Db\n1 2 3 4 5 6 7"))).toEqual([
+			"Db",
+			"Eb",
+			"F",
+			"Gb",
+			"Ab",
+			"Bb",
+			"C",
+		]);
 	});
 
 	it("rejects an invalid interval", () => {
-		const out = parseInput("root: A\n1 b9");
-		expect(out).toEqual({ success: false, error: 'Invalid interval: "b9"' });
+		expect(parseInput("root: A\n1 b9")).toEqual({
+			success: false,
+			error: 'Invalid interval: "b9"',
+		});
+	});
+
+	it("rejects an invalid root", () => {
+		expect(parseInput("root: H\n1 3 5")).toEqual({
+			success: false,
+			error: 'Invalid root note: "H"',
+		});
 	});
 });
 
