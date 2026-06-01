@@ -8,15 +8,10 @@ import {
 	useRef,
 	useState,
 } from "react";
-import {
-	DEFAULT_OUTPUT,
-	isOutputRoutingSupported,
-	listOutputDevices,
-	type OutputDevice,
-	revealDeviceLabels,
-} from "@/audio/devices";
+import type { OutputDevice } from "@/audio/devices";
 import { Metronome } from "@/audio/metronome";
 import { clampBpm } from "@/audio/metronomeMath";
+import { useAudioDevices } from "./AudioDevicesContext";
 
 interface MetronomeState {
 	isPlaying: boolean;
@@ -52,8 +47,13 @@ export function MetronomeProvider({ children }: { children: ReactNode }) {
 	const [accent, setAccentState] = useState(true);
 	const [activeBeat, setActiveBeat] = useState(-1);
 
-	const routingSupported = useMemo(() => isOutputRoutingSupported(), []);
-	const [devices, setDevices] = useState<OutputDevice[]>([DEFAULT_OUTPUT]);
+	// Device discovery is shared across audio sources; this source keeps only its
+	// own selected output.
+	const {
+		routingSupported,
+		devices,
+		refresh: refreshDevices,
+	} = useAudioDevices();
 	const [deviceId, setDeviceIdState] = useState("");
 
 	// Flash the active beat as each click sounds.
@@ -70,18 +70,6 @@ export function MetronomeProvider({ children }: { children: ReactNode }) {
 			void engine.dispose();
 		};
 	}, [engine]);
-
-	const refreshDevices = useCallback(async () => {
-		if (!routingSupported) return;
-		await revealDeviceLabels();
-		setDevices(await listOutputDevices());
-	}, [routingSupported]);
-
-	// Populate the device list once at mount (labels may be placeholders until
-	// the user grants permission via refreshDevices).
-	useEffect(() => {
-		if (routingSupported) void listOutputDevices().then(setDevices);
-	}, [routingSupported]);
 
 	const toggle = useCallback(() => {
 		if (engine.isRunning) {

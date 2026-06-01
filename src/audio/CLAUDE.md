@@ -21,13 +21,31 @@ and device routing live. Kept out of `core/` (which stays pure music theory, no 
 - `listOutputDevices` / `revealDeviceLabels` (labels hidden until an audio permission is granted).
 - `applySink` is a no-op where `setSinkId` is missing → graceful fallback to the default output.
 
+### pitchAudio.ts
+- `frequencyFromMidi` — equal-temperament MIDI→Hz (A4 = 440). Pure, tested.
+
+### noteSequence.ts
+- `buildAscendingMidis(root, notes, octave?)` — turns a note set into an ascending
+  scale run of MIDI numbers, closing on the octave. Pure, tested.
+
+### noteSynth.ts
+- `NoteSynth` class — plays pitched notes (`playMidi`, `playSequence`) on its **own**
+  `AudioContext`, so it can route to a different device than the metronome.
+- Configurable waveform/volume/note length; short envelope to avoid clicks.
+
 ## Key invariant
 Per-device routing is a **progressive enhancement**. Everything must still work (through the
 system default output) when `setSinkId` is unavailable (Firefox/Safari).
 
+Each sound source owns its **own `AudioContext`** so it can be routed independently — that's
+what makes multi-output (metronome on speakers, notes on headphones) possible. Device
+*discovery* is shared (`hooks/AudioDevicesContext.tsx`); device *selection* is per-source.
+
 ## Consumers
-- `hooks/MetronomeContext.tsx` owns a `Metronome` instance and mirrors its state into React.
-- `components/MetronomePanel.tsx` renders the modal UI.
+- `hooks/AudioDevicesContext.tsx` — shared device list + label-reveal, used by all sources.
+- `hooks/MetronomeContext.tsx` owns a `Metronome` instance; `components/MetronomePanel.tsx` is its modal.
+- `hooks/NotesAudioContext.tsx` owns a `NoteSynth`; `components/NotesPanel.tsx` is its modal.
+  Clicking a fret dot (via `FretboardDiagram`'s `onSelectPosition`) plays that pitch.
 
 ## What NOT to do
 - Don't add music-theory math here — that belongs in `core/`. Import pitch data from there.

@@ -3,17 +3,24 @@ import { BoxPatterns } from "@/components/BoxPatterns";
 import { Editor } from "@/components/Editor";
 import { Fretboard } from "@/components/Fretboard";
 import { MetronomePanel } from "@/components/MetronomePanel";
+import { NotesPanel } from "@/components/NotesPanel";
 import { Toolbar } from "@/components/Toolbar";
 import { TuningControls } from "@/components/TuningControls";
+import { AudioDevicesProvider } from "@/hooks/AudioDevicesContext";
 import { MetronomeProvider } from "@/hooks/MetronomeContext";
+import { NotesAudioProvider } from "@/hooks/NotesAudioContext";
 import { FretboardProvider } from "@/hooks/useFretboardContext";
 
 export default function App() {
 	return (
 		<FretboardProvider>
-			<MetronomeProvider>
-				<AppContent />
-			</MetronomeProvider>
+			<AudioDevicesProvider>
+				<MetronomeProvider>
+					<NotesAudioProvider>
+						<AppContent />
+					</NotesAudioProvider>
+				</MetronomeProvider>
+			</AudioDevicesProvider>
 		</FretboardProvider>
 	);
 }
@@ -33,6 +40,7 @@ function AppContent() {
 				<div className="flex flex-wrap items-center gap-4">
 					<Toolbar fretboardRef={fretboardRef} />
 					<MetronomePanel />
+					<NotesPanel />
 				</div>
 
 				<div
