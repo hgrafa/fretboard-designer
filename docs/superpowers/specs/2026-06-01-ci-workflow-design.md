@@ -92,6 +92,20 @@ The repo has no `packageManager` field. Add one so `pnpm/action-setup` resolves 
 
 (11.5.0 is the version in use locally; lockfile is v9, which requires pnpm ≥ 9.)
 
+### 3. `pnpm-workspace.yaml` — approve dependency build scripts
+
+**Discovered during implementation.** pnpm 11 treats unreviewed dependency build scripts as a **fatal error**: `pnpm install --frozen-lockfile` exits 1 with `ERR_PNPM_IGNORED_BUILDS` for `esbuild` and `msw`. This would fail the CI "Install dependencies" step on every run. (The masking earlier was a piped `tail` swallowing the real exit code.)
+
+The repo already tracks a `pnpm-workspace.yaml` (inherited from the prior merge) but with a malformed auto-generated stub — `allowBuilds` keys set to placeholder strings (`"set this to true or false"`) — which pnpm ignores, so the error persists. The fix is to set real boolean approvals:
+
+```yaml
+allowBuilds:
+  esbuild: true
+  msw: true
+```
+
+`allowBuilds` (a `package: boolean` map) is pnpm's current mechanism (v10.26+). The legacy `onlyBuiltDependencies` array is deprecated in v11 and does **not** suppress the error on its own, so it is removed. Verified locally: with this file a clean `pnpm install --frozen-lockfile` (no `node_modules`) exits 0 and esbuild's binary is built. Both `esbuild` (Vite/Vitest) and `msw` (test mocking) are trusted dev dependencies, so approving their scripts is correct.
+
 ## Verification
 
 - **Self-test:** opening the PR for this branch triggers the workflow; it must pass (lint + build + test all green on the current tree, which is already clean — 53 tests passing).

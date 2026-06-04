@@ -60,7 +60,61 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
 
 ---
 
-### Task 2: Add the CI workflow
+### Task 2: Approve dependency build scripts (CI install fix)
+
+**Files:**
+- Modify: `pnpm-workspace.yaml`
+
+**Why:** pnpm 11 makes `pnpm install --frozen-lockfile` exit **1** (`ERR_PNPM_IGNORED_BUILDS`) for `esbuild` and `msw` unless their build scripts are explicitly approved. Without this, the CI "Install dependencies" step fails on every run. The repo already tracks `pnpm-workspace.yaml` but with a malformed auto-generated stub (`allowBuilds` keys set to placeholder strings), which pnpm ignores.
+
+- [ ] **Step 1: Confirm the bug reproduces**
+
+Run: `pnpm install --frozen-lockfile; echo "EXIT: $?"`
+Expected: ends with `[ERR_PNPM_IGNORED_BUILDS] Ignored build scripts: esbuild@..., msw@...` and `EXIT: 1`. (Do NOT pipe through `tail`/`head` — that masks the exit code.)
+
+- [ ] **Step 2: Replace `pnpm-workspace.yaml` with real boolean approvals**
+
+Set the file content to exactly:
+
+```yaml
+allowBuilds:
+  esbuild: true
+  msw: true
+```
+
+`allowBuilds` (a `package: boolean` map) is pnpm's current mechanism (v10.26+). Remove the deprecated `onlyBuiltDependencies` array and the placeholder `allowBuilds` strings — they do not suppress the error.
+
+- [ ] **Step 3: Verify a clean install now exits 0 (simulate CI: no node_modules)**
+
+Run: `rm -rf node_modules && pnpm install --frozen-lockfile; echo "EXIT: $?"`
+Expected: `Done in ...` and `EXIT: 0`. No `ERR_PNPM_IGNORED_BUILDS`.
+
+- [ ] **Step 4: Verify the build script actually ran (esbuild binary present)**
+
+Run: `ls node_modules/.pnpm/esbuild@*/node_modules/esbuild/bin/esbuild && echo "esbuild OK"`
+Expected: a path is printed, then `esbuild OK`.
+
+- [ ] **Step 5: Confirm the lockfile was not modified**
+
+Run: `git status --porcelain pnpm-lock.yaml`
+Expected: no output.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add pnpm-workspace.yaml
+git commit -m "build: approve esbuild and msw build scripts
+
+pnpm 11 fails install with ERR_PNPM_IGNORED_BUILDS unless dependency
+build scripts are explicitly approved. Replaces the malformed
+auto-generated stub with real boolean approvals so CI install exits 0.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
+```
+
+---
+
+### Task 3: Add the CI workflow
 
 **Files:**
 - Create: `.github/workflows/ci.yml`
