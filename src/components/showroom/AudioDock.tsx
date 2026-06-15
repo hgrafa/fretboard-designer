@@ -38,6 +38,7 @@ export function AudioDock({
 }: AudioDockProps) {
 	const [collapsed, setCollapsed] = useState(false);
 	const [speedOpen, setSpeedOpen] = useState(false);
+	const [seeking, setSeeking] = useState<number | null>(null);
 
 	return (
 		<div className="fixed inset-x-0 bottom-0 z-40 border-border border-t bg-card/95 backdrop-blur">
@@ -80,15 +81,19 @@ export function AudioDock({
 						</button>
 
 						<span className="w-10 shrink-0 text-right text-muted-foreground text-xs tabular-nums">
-							{formatTime(api.currentTime)}
+							{formatTime(seeking ?? api.currentTime)}
 						</span>
 						<Slider
 							aria-label="Seek"
 							min={0}
 							max={api.duration || 0}
 							step={1}
-							value={[Math.min(api.currentTime, api.duration || 0)]}
-							onValueChange={([v]) => api.seek(v)}
+							value={[seeking ?? Math.min(api.currentTime, api.duration || 0)]}
+							onValueChange={([v]) => setSeeking(v)}
+							onValueCommit={([v]) => {
+								api.seek(v);
+								setSeeking(null);
+							}}
 							className="min-w-24 flex-1"
 						/>
 						<span className="w-10 shrink-0 text-muted-foreground text-xs tabular-nums">

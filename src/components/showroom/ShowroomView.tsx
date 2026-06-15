@@ -27,7 +27,7 @@ export function ShowroomView() {
 
 	return (
 		<div
-			className="relative flex h-full flex-col gap-4"
+			className="relative flex h-full flex-col gap-4 p-4"
 			onDragOver={(e) => {
 				e.preventDefault();
 				setDragging(true);
