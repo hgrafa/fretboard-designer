@@ -61,84 +61,37 @@ echo "Checking Claude auth..."
 claude auth status --text
 echo
 
-ISSUE_NUMBER="$(
-	gh issue list \
-		--repo "$REPO" \
-		--state open \
-		--label "$READY_LABEL" \
-		--json number,updatedAt \
-		--jq 'sort_by(.updatedAt) | .[0].number // empty'
-)"
+# Echoes "<base_ref>\t<base_pr>" for an issue. Deterministic, never guessed.
+compute_base_ref() {
+	local issue="$1" body dep_n base_pr base_ref
 
-if [[ -z "$ISSUE_NUMBER" ]]; then
-	echo "No open issue with label '$READY_LABEL'."
-	exit 0
-fi
+	body="$(gh issue view "$issue" --repo "$REPO" --json body --jq '.body' 2>/dev/null || true)"
 
-ISSUE_JSON="$(
-	gh issue view "$ISSUE_NUMBER" \
-		--repo "$REPO" \
-		--json number,title,labels,url,state
-)"
+	# 1. Explicit "Depends on #N" with an open PR.
+	dep_n="$(printf '%s' "$body" | grep -oiE 'depends on #[0-9]+' | grep -oE '[0-9]+' | head -1 || true)"
+	if [[ -n "$dep_n" ]]; then
+		base_ref="$(gh pr view "$dep_n" --repo "$REPO" --json headRefName,state \
+			--jq 'select(.state=="OPEN") | .headRefName' 2>/dev/null || true)"
+		if [[ -n "$base_ref" ]]; then
+			printf '%s\t%s\n' "$base_ref" "$dep_n"
+			return 0
+		fi
+	fi
 
-TITLE="$(echo "$ISSUE_JSON" | jq -r '.title')"
-ISSUE_URL="$(echo "$ISSUE_JSON" | jq -r '.url')"
+	# 2. An open PR that already references this issue (a prior slice).
+	base_pr="$(gh pr list --repo "$REPO" --state open --search "#$issue in:body" \
+		--json number,updatedAt --jq 'sort_by(.updatedAt) | last | .number // empty' 2>/dev/null || true)"
+	if [[ -n "$base_pr" ]]; then
+		base_ref="$(gh pr view "$base_pr" --repo "$REPO" --json headRefName --jq '.headRefName' 2>/dev/null || true)"
+		if [[ -n "$base_ref" ]]; then
+			printf '%s\t%s\n' "$base_ref" "$base_pr"
+			return 0
+		fi
+	fi
 
-echo "Selected issue #$ISSUE_NUMBER: $TITLE"
-echo "$ISSUE_URL"
-echo
-
-# Infer branch prefix from labels/title.
-LABELS="$(echo "$ISSUE_JSON" | jq -r '.labels[].name' || true)"
-
-BRANCH_PREFIX="feat"
-
-if echo "$LABELS" | grep -qx "type:bug"; then
-	BRANCH_PREFIX="fix"
-elif echo "$LABELS" | grep -qx "type:fix"; then
-	BRANCH_PREFIX="fix"
-elif echo "$LABELS" | grep -qx "type:refactor"; then
-	BRANCH_PREFIX="refactor"
-elif echo "$LABELS" | grep -qx "type:test"; then
-	BRANCH_PREFIX="test"
-elif echo "$LABELS" | grep -qx "type:docs"; then
-	BRANCH_PREFIX="docs"
-elif echo "$LABELS" | grep -qx "type:chore"; then
-	BRANCH_PREFIX="chore"
-elif echo "$TITLE" | grep -Eiq '^(fix|bug|bugfix):'; then
-	BRANCH_PREFIX="fix"
-elif echo "$TITLE" | grep -Eiq '^refactor:'; then
-	BRANCH_PREFIX="refactor"
-elif echo "$TITLE" | grep -Eiq '^test:'; then
-	BRANCH_PREFIX="test"
-elif echo "$TITLE" | grep -Eiq '^docs:'; then
-	BRANCH_PREFIX="docs"
-elif echo "$TITLE" | grep -Eiq '^chore:'; then
-	BRANCH_PREFIX="chore"
-fi
-
-SLUG="$(
-	echo "$TITLE" \
-		| tr '[:upper:]' '[:lower:]' \
-		| sed -E 's/^[a-z]+:[[:space:]]*//g' \
-		| sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' \
-		| cut -c1-56
-)"
-
-if [[ -z "$SLUG" ]]; then
-	SLUG="work"
-fi
-
-BRANCH="${BRANCH_PREFIX}/issue-${ISSUE_NUMBER}-${SLUG}"
-
-echo "Branch prefix: $BRANCH_PREFIX"
-echo "Branch: $BRANCH"
-echo
-
-export CLAUDE_ISSUE_NUMBER="$ISSUE_NUMBER"
-export CLAUDE_REPO="$REPO"
-export CLAUDE_BRANCH="$BRANCH"
-export CLAUDE_EXPECTED_PERMISSION_MODE="$CLAUDE_PERMISSION_MODE"
+	# 3. Default: main.
+	printf '%s\t%s\n' "main" ""
+}
 
 post_runner_checkpoint() {
 	local exit_code="$?"
@@ -204,18 +157,105 @@ claude -p --permission-mode $CLAUDE_PERMISSION_MODE --max-turns $CLAUDE_MAX_TURN
 	exit "$exit_code"
 }
 
-trap post_runner_checkpoint EXIT
+ISSUE_NUMBER="$(
+	gh issue list \
+		--repo "$REPO" \
+		--state open \
+		--label "$READY_LABEL" \
+		--json number,updatedAt \
+		--jq 'sort_by(.updatedAt) | .[0].number // empty'
+)"
 
-echo "Updating issue labels..."
-gh issue edit "$ISSUE_NUMBER" \
-	--repo "$REPO" \
-	--remove-label "$READY_LABEL" \
-	--add-label "$IN_PROGRESS_LABEL" || true
+if [[ -z "$ISSUE_NUMBER" ]]; then
+	echo "No open issue with label '$READY_LABEL'."
+	exit 0
+fi
 
-echo "Posting start checkpoint..."
-gh issue comment "$ISSUE_NUMBER" \
-	--repo "$REPO" \
-	--body "## Claude checkpoint
+dispatch_new() {
+	local ISSUE_NUMBER="$1"
+
+	ISSUE_JSON="$(
+		gh issue view "$ISSUE_NUMBER" \
+			--repo "$REPO" \
+			--json number,title,labels,url,state
+	)"
+
+	TITLE="$(echo "$ISSUE_JSON" | jq -r '.title')"
+	ISSUE_URL="$(echo "$ISSUE_JSON" | jq -r '.url')"
+
+	echo "Selected issue #$ISSUE_NUMBER: $TITLE"
+	echo "$ISSUE_URL"
+	echo
+
+	# Infer branch prefix from labels/title.
+	LABELS="$(echo "$ISSUE_JSON" | jq -r '.labels[].name' || true)"
+
+	BRANCH_PREFIX="feat"
+
+	if echo "$LABELS" | grep -qx "type:bug"; then
+		BRANCH_PREFIX="fix"
+	elif echo "$LABELS" | grep -qx "type:fix"; then
+		BRANCH_PREFIX="fix"
+	elif echo "$LABELS" | grep -qx "type:refactor"; then
+		BRANCH_PREFIX="refactor"
+	elif echo "$LABELS" | grep -qx "type:test"; then
+		BRANCH_PREFIX="test"
+	elif echo "$LABELS" | grep -qx "type:docs"; then
+		BRANCH_PREFIX="docs"
+	elif echo "$LABELS" | grep -qx "type:chore"; then
+		BRANCH_PREFIX="chore"
+	elif echo "$TITLE" | grep -Eiq '^(fix|bug|bugfix):'; then
+		BRANCH_PREFIX="fix"
+	elif echo "$TITLE" | grep -Eiq '^refactor:'; then
+		BRANCH_PREFIX="refactor"
+	elif echo "$TITLE" | grep -Eiq '^test:'; then
+		BRANCH_PREFIX="test"
+	elif echo "$TITLE" | grep -Eiq '^docs:'; then
+		BRANCH_PREFIX="docs"
+	elif echo "$TITLE" | grep -Eiq '^chore:'; then
+		BRANCH_PREFIX="chore"
+	fi
+
+	SLUG="$(
+		echo "$TITLE" \
+			| tr '[:upper:]' '[:lower:]' \
+			| sed -E 's/^[a-z]+:[[:space:]]*//g' \
+			| sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' \
+			| cut -c1-56
+	)"
+
+	if [[ -z "$SLUG" ]]; then
+		SLUG="work"
+	fi
+
+	BRANCH="${BRANCH_PREFIX}/issue-${ISSUE_NUMBER}-${SLUG}"
+
+	echo "Branch prefix: $BRANCH_PREFIX"
+	echo "Branch: $BRANCH"
+	echo
+
+	local BASE_REF BASE_PR
+	IFS=$'\t' read -r BASE_REF BASE_PR < <(compute_base_ref "$ISSUE_NUMBER")
+	echo "Base ref: $BASE_REF${BASE_PR:+ (stacked on #$BASE_PR)}"
+
+	export CLAUDE_ISSUE_NUMBER="$ISSUE_NUMBER"
+	export CLAUDE_REPO="$REPO"
+	export CLAUDE_BRANCH="$BRANCH"
+	export CLAUDE_EXPECTED_PERMISSION_MODE="$CLAUDE_PERMISSION_MODE"
+	export CLAUDE_BASE_REF="$BASE_REF" CLAUDE_BASE_PR="$BASE_PR" CLAUDE_REVIEWER="$CLAUDE_REVIEWER"
+
+	trap post_runner_checkpoint EXIT
+
+	echo "Updating issue labels..."
+	run gh issue edit "$ISSUE_NUMBER" \
+		--repo "$REPO" \
+		--remove-label "$READY_LABEL" \
+		--add-label "$IN_PROGRESS_LABEL" || true
+
+	echo "Posting start checkpoint..."
+	run gh issue comment "$ISSUE_NUMBER" \
+		--repo "$REPO" \
+		--body "## Claude checkpoint
 
 Issue: #$ISSUE_NUMBER
 Branch: \`$BRANCH\`
@@ -261,32 +301,20 @@ Status: in-progress
 
 ### Next step
 Start Claude Code with the work-issue skill."
-echo
+	echo
 
-echo "Preparing git branch..."
-git fetch origin main
+	echo "Preparing git branch..."
+	git fetch origin "$BASE_REF"
+	run git switch -c "$BRANCH" "origin/$BASE_REF" 2>/dev/null || run git switch "$BRANCH"
 
-CURRENT_BRANCH="$(git branch --show-current || true)"
-if [[ "$CURRENT_BRANCH" != "main" ]]; then
-	git switch main
-fi
+	echo
+	echo "Starting Claude Code..."
+	echo
 
-git pull --ff-only origin main
+	run claude -p \
+		--permission-mode "$CLAUDE_PERMISSION_MODE" \
+		--max-turns "$CLAUDE_MAX_TURNS" \
+		"$CLAUDE_COMMAND_NAME $ISSUE_NUMBER"
+}
 
-if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
-	git switch "$BRANCH"
-elif git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
-	git switch -c "$BRANCH" --track "origin/$BRANCH"
-else
-	git switch -c "$BRANCH"
-fi
-
-echo
-echo "Starting Claude Code..."
-echo
-
-claude -p \
-	--permission-mode "$CLAUDE_PERMISSION_MODE" \
-	--max-turns "$CLAUDE_MAX_TURNS" \
-	"$CLAUDE_COMMAND_NAME $ISSUE_NUMBER"
-
+dispatch_new "$ISSUE_NUMBER"
