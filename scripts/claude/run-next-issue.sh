@@ -9,6 +9,9 @@ REVIEW_LABEL="${REVIEW_LABEL:-claude:review}"
 CLAUDE_MAX_TURNS="${CLAUDE_MAX_TURNS:-40}"
 CLAUDE_PERMISSION_MODE="${CLAUDE_PERMISSION_MODE:-auto}"
 CLAUDE_COMMAND_NAME="${CLAUDE_COMMAND_NAME:-/work-issue}"
+REVISE_LABEL="${REVISE_LABEL:-claude:revise}"
+QUEUE_PRIORITY="${QUEUE_PRIORITY:-revise-first}"
+DRY_RUN="${DRY_RUN:-0}"
 
 ROOT_DIR="$(git rev-parse --show-toplevel)"
 cd "$ROOT_DIR"
@@ -24,6 +27,22 @@ require_cmd gh
 require_cmd git
 require_cmd pnpm
 require_cmd claude
+
+# Run a mutating command, or just print it under DRY_RUN.
+run() {
+	if [[ "$DRY_RUN" == "1" ]]; then
+		echo "[dry-run] $*"
+	else
+		"$@"
+	fi
+}
+
+# Reviewer defaults to the repo owner login unless overridden.
+CLAUDE_REVIEWER="${CLAUDE_REVIEWER:-$(gh repo view "$REPO" --json owner --jq '.owner.login' 2>/dev/null || true)}"
+
+# Ensure the review-loop label exists (idempotent).
+gh label create "$REVISE_LABEL" --repo "$REPO" --color FBCA04 \
+	--description "Reviewed, changes requested — Claude resume on the PR" >/dev/null 2>&1 || true
 
 # Important:
 # If ANTHROPIC_API_KEY is present, Claude Code may use API billing instead of
