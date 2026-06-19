@@ -8,6 +8,8 @@ view a PDF (partiture / class doc). One page; the audio dock floats; nothing per
 - `MediaSourceBar` — set the current audio source (YouTube URL or MP3 file).
 - `AudioDock` — floating, collapsible transport (play/pause, ±10s, seek, speed, volume).
   Presentational: receives a `MediaPlayerApi` + the `<audio>`/YouTube container refs.
+  The speed control offers fine-grained playback rates from 0.5× to 1.5× in 0.25 steps
+  (`0.5, 0.75, 1, 1.25, 1.5`), handy for slowing down a passage to learn it.
 - `PdfViewer` — native `<iframe>` viewer + empty-state upload; validates `application/pdf`.
 
 ## State
