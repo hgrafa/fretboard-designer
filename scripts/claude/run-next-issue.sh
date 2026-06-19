@@ -96,8 +96,9 @@ compute_base_ref() {
 post_runner_checkpoint() {
 	local exit_code="$?"
 
-	# Avoid posting noisy checkpoints when no issue was selected.
-	if [[ -z "${CLAUDE_ISSUE_NUMBER:-}" ]]; then
+	# Works for an issue OR a PR — whichever is set.
+	local target="${CLAUDE_PR_NUMBER:-${CLAUDE_ISSUE_NUMBER:-}}"
+	if [[ -z "$target" ]]; then
 		exit "$exit_code"
 	fi
 
@@ -120,11 +121,10 @@ post_runner_checkpoint() {
 		checkpoint_status="runner-failed"
 	fi
 
-	gh issue comment "$CLAUDE_ISSUE_NUMBER" \
-		--repo "$REPO" \
-		--body "## Claude runner checkpoint
+	local body
+	body="## Claude runner checkpoint
 
-Issue: #$CLAUDE_ISSUE_NUMBER
+Issue: #${CLAUDE_ISSUE_NUMBER:-$target}
 Branch: \`$current_branch\`
 Status: $checkpoint_status
 Runner exit code: \`$exit_code\`
@@ -152,24 +152,16 @@ $status
 git switch $current_branch
 claude -p --permission-mode $CLAUDE_PERMISSION_MODE --max-turns $CLAUDE_MAX_TURNS \"$CLAUDE_COMMAND_NAME $CLAUDE_ISSUE_NUMBER\"
 \`\`\`
-" >/dev/null || true
+"
+
+	if [[ -n "${CLAUDE_PR_NUMBER:-}" ]]; then
+		gh pr comment "$target" --repo "$REPO" --body "$body" >/dev/null 2>&1 || true
+	else
+		gh issue comment "$target" --repo "$REPO" --body "$body" >/dev/null 2>&1 || true
+	fi
 
 	exit "$exit_code"
 }
-
-ISSUE_NUMBER="$(
-	gh issue list \
-		--repo "$REPO" \
-		--state open \
-		--label "$READY_LABEL" \
-		--json number,updatedAt \
-		--jq 'sort_by(.updatedAt) | .[0].number // empty'
-)"
-
-if [[ -z "$ISSUE_NUMBER" ]]; then
-	echo "No open issue with label '$READY_LABEL'."
-	exit 0
-fi
 
 dispatch_new() {
 	local ISSUE_NUMBER="$1"
@@ -317,4 +309,50 @@ Start Claude Code with the work-issue skill."
 		"$CLAUDE_COMMAND_NAME $ISSUE_NUMBER"
 }
 
-dispatch_new "$ISSUE_NUMBER"
+dispatch_revise() {
+	local PR="$1" BRANCH
+	BRANCH="$(gh pr view "$PR" --repo "$REPO" --json headRefName --jq '.headRefName')"
+	echo "Selected revise PR #$PR on branch $BRANCH"
+
+	export CLAUDE_PR_NUMBER="$PR" CLAUDE_REPO="$REPO" CLAUDE_REVIEWER="$CLAUDE_REVIEWER"
+	export CLAUDE_EXPECTED_PERMISSION_MODE="$CLAUDE_PERMISSION_MODE"
+	trap post_runner_checkpoint EXIT
+
+	git fetch origin "$BRANCH"
+	run git switch "$BRANCH" 2>/dev/null || run git switch -c "$BRANCH" --track "origin/$BRANCH"
+
+	run gh pr edit "$PR" --repo "$REPO" \
+		--remove-label "$REVISE_LABEL" --add-label "$IN_PROGRESS_LABEL" || true
+	run gh pr comment "$PR" --repo "$REPO" --body "## Claude runner checkpoint
+
+PR: #$PR
+Branch: \`$BRANCH\`
+Status: addressing-review" || true
+
+	run claude -p --permission-mode "$CLAUDE_PERMISSION_MODE" \
+		--max-turns "$CLAUDE_MAX_TURNS" "/address-review $PR"
+}
+
+REVISE_PR="$(gh pr list --repo "$REPO" --state open --label "$REVISE_LABEL" \
+	--json number,updatedAt --jq 'sort_by(.updatedAt) | .[0].number // empty')"
+
+if [[ "$QUEUE_PRIORITY" == "revise-first" && -n "$REVISE_PR" ]]; then
+	dispatch_revise "$REVISE_PR"
+	exit 0
+fi
+
+ISSUE_NUMBER="$(gh issue list --repo "$REPO" --state open --label "$READY_LABEL" \
+	--json number,updatedAt --jq 'sort_by(.updatedAt) | .[0].number // empty')"
+
+if [[ -n "$ISSUE_NUMBER" ]]; then
+	dispatch_new "$ISSUE_NUMBER"
+	exit 0
+fi
+
+if [[ -n "$REVISE_PR" ]]; then
+	dispatch_revise "$REVISE_PR"
+	exit 0
+fi
+
+echo "Nothing to do (no $REVISE_LABEL PRs, no $READY_LABEL issues)."
+exit 0
