@@ -106,6 +106,9 @@ const ptBR: TranslationSchema = {
 				"Responda o máximo de perguntas sobre intervalos antes do tempo acabar. Fica mais rápido conforme você pontua!",
 			bestScores: "Melhores Pontuações",
 			allTime: "de todos os tempos",
+			colRank: "Pos.",
+			colTime: "Tempo",
+			colDate: "Data",
 		},
 	},
 	errors: {

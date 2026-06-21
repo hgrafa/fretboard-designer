@@ -1,3 +1,4 @@
+import { Trophy } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useInstrument } from "@/hooks/useFretboardContext";
@@ -39,9 +40,14 @@ export function PracticeView() {
 
 	if (state.phase === "idle") {
 		const scores = loadScores();
+		const rankStyle = [
+			{ iconColor: "text-yellow-400", textColor: "text-yellow-500" },
+			{ iconColor: "text-slate-400", textColor: "text-slate-400" },
+			{ iconColor: "text-amber-600", textColor: "text-amber-600" },
+		];
 		return (
 			<div className="flex items-center justify-center h-full p-4 overflow-y-auto">
-				<div className="flex flex-col items-center gap-8 text-center py-8 w-full max-w-xs">
+				<div className="flex flex-col items-center gap-8 text-center py-8 w-full max-w-sm">
 					<div className="space-y-2">
 						<h1 className="text-3xl font-black">{t("ui.practice.title")}</h1>
 						<p className="text-sm text-muted-foreground">
@@ -52,30 +58,51 @@ export function PracticeView() {
 						{t("ui.practice.start")}
 					</Button>
 					{scores.length > 0 && (
-						<div className="w-full space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+						<div className="w-full space-y-2 text-left">
+							<p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground text-center">
 								{t("ui.practice.bestScores")}
 							</p>
-							<div className="divide-y divide-border rounded-lg border border-border overflow-hidden">
-								{scores.slice(0, 5).map((s, i) => (
-									<div
-										key={`${s.date}-${i}`}
-										className="flex items-center justify-between px-4 py-2.5 bg-card text-sm"
-									>
-										<span className="font-black text-base w-6 text-muted-foreground">
-											{i + 1}
-										</span>
-										<span className="font-bold text-lg tabular-nums">
-											{s.score}
-										</span>
-										<span className="text-muted-foreground tabular-nums text-xs">
-											{formatTime(s.totalTimeMs)}
-										</span>
-										<span className="text-muted-foreground text-xs">
-											{formatDate(s.date)}
-										</span>
-									</div>
-								))}
+							<div className="rounded-lg border border-border overflow-hidden">
+								{/* column headers */}
+								<div className="grid grid-cols-[2.5rem_1fr_3.5rem_4.5rem] items-center px-3 py-1.5 bg-muted/60 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
+									<span>{t("ui.practice.colRank")}</span>
+									<span className="text-center">{t("ui.practice.score")}</span>
+									<span className="text-right">{t("ui.practice.colTime")}</span>
+									<span className="text-right">{t("ui.practice.colDate")}</span>
+								</div>
+								{scores.slice(0, 5).map((s, i) => {
+									const style = rankStyle[i];
+									return (
+										<div
+											key={`${s.date}-${i}`}
+											className="grid grid-cols-[2.5rem_1fr_3.5rem_4.5rem] items-center px-3 py-2.5 bg-card text-sm border-b border-border last:border-0"
+										>
+											<span className="flex items-center gap-1">
+												{style && (
+													<Trophy
+														size={12}
+														className={style.iconColor}
+														strokeWidth={2.5}
+													/>
+												)}
+												<span
+													className={`font-bold tabular-nums text-xs ${style ? style.textColor : "text-muted-foreground"}`}
+												>
+													#{i + 1}
+												</span>
+											</span>
+											<span className="text-center font-black text-lg tabular-nums">
+												{s.score}
+											</span>
+											<span className="text-right text-muted-foreground tabular-nums text-xs">
+												{formatTime(s.totalTimeMs)}
+											</span>
+											<span className="text-right text-muted-foreground text-xs">
+												{formatDate(s.date)}
+											</span>
+										</div>
+									);
+								})}
 							</div>
 						</div>
 					)}

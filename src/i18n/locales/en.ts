@@ -102,6 +102,9 @@ const en = {
 				"Answer as many interval questions as you can before the timer runs out. It gets faster as you score!",
 			bestScores: "Best Scores",
 			allTime: "all time",
+			colRank: "Rank",
+			colTime: "Time",
+			colDate: "Date",
 		},
 	},
 	errors: {
