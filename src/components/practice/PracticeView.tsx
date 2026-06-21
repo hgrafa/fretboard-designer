@@ -124,11 +124,9 @@ export function PracticeView() {
 											<span className="text-right text-muted-foreground tabular-nums text-xs">
 												{formatTime(s.totalTimeMs)}
 											</span>
-											<span className="text-right leading-tight">
-												<span className="block text-muted-foreground text-xs">
-													{formatDate(s.date).date}
-												</span>
-												<span className="block text-muted-foreground text-xs tabular-nums">
+											<span className="flex flex-col md:flex-row md:justify-end md:gap-1.5 text-right text-muted-foreground text-xs leading-tight">
+												<span>{formatDate(s.date).date}</span>
+												<span className="tabular-nums">
 													{formatDate(s.date).time}
 												</span>
 											</span>
