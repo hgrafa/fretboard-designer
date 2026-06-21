@@ -1,7 +1,41 @@
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { useInstrument } from "@/hooks/useFretboardContext";
+import { usePracticeGame } from "@/hooks/usePracticeGame";
+import { GameHeader } from "./GameHeader";
+import { GameOverScreen } from "./GameOverScreen";
+
 export function PracticeView() {
+	const { t } = useTranslation();
+	const { tuning } = useInstrument();
+	const { state, start, restart } = usePracticeGame(tuning);
+
+	if (state.phase === "game_over") {
+		return <GameOverScreen score={state.score} onRestart={restart} />;
+	}
+
+	if (state.phase === "idle") {
+		return (
+			<div className="flex flex-col items-center justify-center h-full gap-4">
+				<h1 className="text-2xl font-bold">{t("ui.practice.title")}</h1>
+				<Button size="lg" onClick={start}>
+					{t("ui.practice.start")}
+				</Button>
+			</div>
+		);
+	}
+
+	// playing — challenge dispatch wired in Tasks 6 & 7
 	return (
-		<div className="flex items-center justify-center h-full text-muted-foreground">
-			Practice — coming soon
+		<div className="flex flex-col h-full">
+			<GameHeader
+				score={state.score}
+				timerMs={state.currentTimerMs}
+				timerStartedAt={state.timerStartedAt}
+			/>
+			<div className="flex-1 flex items-center justify-center text-muted-foreground">
+				Challenge: {state.challenge?.type}
+			</div>
 		</div>
 	);
 }

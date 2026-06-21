@@ -1,12 +1,21 @@
 import { useEffect, useReducer, useRef } from "react";
+import type {
+	Challenge,
+	ChallengeType,
+	FretboardMarkChallenge,
+} from "@/core/practice";
 import {
 	checkFretboardAnswer,
 	generateChallenge,
 	nextDuration,
 	TIMER_CONFIG,
 } from "@/core/practice";
-import type { ChallengeType, Challenge, FretboardMarkChallenge } from "@/core/practice";
-import type { FretPosition, IntervalName, NoteName, Tuning } from "@/types/music";
+import type {
+	FretPosition,
+	IntervalName,
+	NoteName,
+	Tuning,
+} from "@/types/music";
 
 export interface PracticeState {
 	phase: "idle" | "playing" | "game_over";
@@ -74,7 +83,8 @@ function reducer(state: PracticeState, action: Action): PracticeState {
 			};
 		}
 		case "NEXT": {
-			const { isCorrect, nextChallenge, now, newDuration, prevType } = action.payload;
+			const { isCorrect, nextChallenge, now, newDuration, prevType } =
+				action.payload;
 			// Use newDurations so currentTimerMs is correct when next type == prev type
 			const newDurations = { ...state.durations, [prevType]: newDuration };
 			return {
@@ -110,9 +120,13 @@ export function usePracticeGame(tuning: Tuning) {
 	const tuningRef = useRef(tuning);
 	tuningRef.current = tuning;
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: timerStartedAt is intentional — it is the trigger to restart the countdown when a new challenge arrives
 	useEffect(() => {
 		if (state.phase !== "playing") return;
-		const id = setTimeout(() => dispatch({ type: "TIMEOUT" }), state.currentTimerMs);
+		const id = setTimeout(
+			() => dispatch({ type: "TIMEOUT" }),
+			state.currentTimerMs,
+		);
 		return () => clearTimeout(id);
 	}, [state.timerStartedAt, state.phase, state.currentTimerMs]);
 
@@ -133,7 +147,13 @@ export function usePracticeGame(tuning: Tuning) {
 		const nextChallenge = generateChallenge(nextType, tuningRef.current);
 		dispatch({
 			type: "NEXT",
-			payload: { isCorrect, nextChallenge, now: Date.now(), newDuration, prevType },
+			payload: {
+				isCorrect,
+				nextChallenge,
+				now: Date.now(),
+				newDuration,
+				prevType,
+			},
 		});
 	}
 
@@ -155,7 +175,13 @@ export function usePracticeGame(tuning: Tuning) {
 		const nextChallenge = generateChallenge(nextType, tuningRef.current);
 		dispatch({
 			type: "NEXT",
-			payload: { isCorrect, nextChallenge, now: Date.now(), newDuration, prevType },
+			payload: {
+				isCorrect,
+				nextChallenge,
+				now: Date.now(),
+				newDuration,
+				prevType,
+			},
 		});
 	}
 
