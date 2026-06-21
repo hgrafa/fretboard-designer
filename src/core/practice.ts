@@ -59,9 +59,9 @@ export const TIMER_CONFIG: Record<
 	ChallengeType,
 	{ start: number; min: number; step: number }
 > = {
-	"identify-interval": { start: 8000, min: 3000, step: 500 },
-	"identify-note": { start: 8000, min: 3000, step: 500 },
-	"fretboard-mark": { start: 35000, min: 12000, step: 2000 },
+	"identify-interval": { start: 12000, min: 4000, step: 300 },
+	"identify-note": { start: 12000, min: 4000, step: 300 },
+	"fretboard-mark": { start: 40000, min: 15000, step: 1500 },
 };
 
 function pickRandom<T>(arr: T[]): T {
