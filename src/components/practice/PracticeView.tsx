@@ -2,13 +2,15 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useInstrument } from "@/hooks/useFretboardContext";
 import { usePracticeGame } from "@/hooks/usePracticeGame";
+import { ChallengeIdentifyInterval } from "./ChallengeIdentifyInterval";
+import { ChallengeIdentifyNote } from "./ChallengeIdentifyNote";
 import { GameHeader } from "./GameHeader";
 import { GameOverScreen } from "./GameOverScreen";
 
 export function PracticeView() {
 	const { t } = useTranslation();
 	const { tuning } = useInstrument();
-	const { state, start, restart } = usePracticeGame(tuning);
+	const { state, start, answer, restart } = usePracticeGame(tuning);
 
 	if (state.phase === "game_over") {
 		return <GameOverScreen score={state.score} onRestart={restart} />;
@@ -25,7 +27,6 @@ export function PracticeView() {
 		);
 	}
 
-	// playing — challenge dispatch wired in Tasks 6 & 7
 	return (
 		<div className="flex flex-col h-full">
 			<GameHeader
@@ -33,8 +34,24 @@ export function PracticeView() {
 				timerMs={state.currentTimerMs}
 				timerStartedAt={state.timerStartedAt}
 			/>
-			<div className="flex-1 flex items-center justify-center text-muted-foreground">
-				Challenge: {state.challenge?.type}
+			<div className="flex-1 flex items-center justify-center">
+				{state.challenge?.type === "identify-interval" && (
+					<ChallengeIdentifyInterval
+						challenge={state.challenge}
+						onAnswer={answer}
+					/>
+				)}
+				{state.challenge?.type === "identify-note" && (
+					<ChallengeIdentifyNote
+						challenge={state.challenge}
+						onAnswer={answer}
+					/>
+				)}
+				{state.challenge?.type === "fretboard-mark" && (
+					<div className="text-muted-foreground">
+						Fretboard challenge — coming in next task
+					</div>
+				)}
 			</div>
 		</div>
 	);
