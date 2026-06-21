@@ -79,35 +79,39 @@ export function PracticeView() {
 	}
 
 	return (
-		<div className="flex flex-col h-full">
-			<GameHeader
-				score={state.score}
-				lives={state.lives}
-				timerMs={state.currentTimerMs}
-				timerStartedAt={state.timerStartedAt}
-			/>
-			<div className="flex-1 flex items-center justify-center overflow-y-auto">
-				{state.challenge?.type === "identify-interval" && (
-					<ChallengeIdentifyInterval
-						challenge={state.challenge}
-						onAnswer={answer}
-					/>
-				)}
-				{state.challenge?.type === "identify-note" && (
-					<ChallengeIdentifyNote
-						challenge={state.challenge}
-						onAnswer={answer}
-					/>
-				)}
-				{state.challenge?.type === "fretboard-mark" && (
-					<ChallengeFretboardMark
-						challenge={state.challenge}
-						tuning={tuning}
-						markedPositions={state.markedPositions}
-						onToggle={togglePosition}
-						onSubmit={submitFretboard}
-					/>
-				)}
+		<div className="flex justify-center h-full">
+			<div className="flex flex-col h-full w-full max-w-2xl">
+				<GameHeader
+					score={state.score}
+					lives={state.lives}
+					timerMs={state.currentTimerMs}
+					timerStartedAt={state.timerStartedAt}
+				/>
+				<div className="flex-1 overflow-y-auto">
+					<div className="min-h-full flex items-center justify-center py-8 px-6">
+						{state.challenge?.type === "identify-interval" && (
+							<ChallengeIdentifyInterval
+								challenge={state.challenge}
+								onAnswer={answer}
+							/>
+						)}
+						{state.challenge?.type === "identify-note" && (
+							<ChallengeIdentifyNote
+								challenge={state.challenge}
+								onAnswer={answer}
+							/>
+						)}
+						{state.challenge?.type === "fretboard-mark" && (
+							<ChallengeFretboardMark
+								challenge={state.challenge}
+								tuning={tuning}
+								markedPositions={state.markedPositions}
+								onToggle={togglePosition}
+								onSubmit={submitFretboard}
+							/>
+						)}
+					</div>
+				</div>
 			</div>
 		</div>
 	);

@@ -30,7 +30,7 @@ export function ChallengeIdentifyInterval({ challenge, onAnswer }: Props) {
 	}
 
 	return (
-		<div className="flex flex-col items-center gap-10 p-8 max-w-sm mx-auto w-full">
+		<div className="flex flex-col items-center gap-10 w-full">
 			<div className="text-center space-y-2">
 				<p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
 					{t("ui.practice.whatInterval")}
