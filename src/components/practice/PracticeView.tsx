@@ -91,7 +91,7 @@ export function PracticeView() {
 							</p>
 							<div className="rounded-lg border border-border overflow-hidden">
 								{/* column headers */}
-								<div className="grid grid-cols-[2.5rem_1fr_3.5rem_4.5rem] items-center px-3 py-1.5 bg-muted/60 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
+								<div className="grid grid-cols-[2.5rem_1fr_3.5rem_5.5rem] items-center px-3 py-1.5 bg-muted/60 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
 									<span>{t("ui.practice.colRank")}</span>
 									<span className="text-center">{t("ui.practice.score")}</span>
 									<span className="text-right">{t("ui.practice.colTime")}</span>
@@ -102,7 +102,7 @@ export function PracticeView() {
 									return (
 										<div
 											key={`${s.date}-${i}`}
-											className="grid grid-cols-[2.5rem_1fr_3.5rem_4.5rem] items-center px-3 py-2.5 bg-card text-sm border-b border-border last:border-0"
+											className="grid grid-cols-[2.5rem_1fr_3.5rem_5.5rem] items-center px-3 py-2.5 bg-card text-sm border-b border-border last:border-0"
 										>
 											<span className="flex items-center gap-1">
 												{style && (
@@ -124,8 +124,13 @@ export function PracticeView() {
 											<span className="text-right text-muted-foreground tabular-nums text-xs">
 												{formatTime(s.totalTimeMs)}
 											</span>
-											<span className="text-right text-muted-foreground text-xs">
-												{formatDate(s.date)}
+											<span className="text-right leading-tight">
+												<span className="block text-muted-foreground text-xs">
+													{formatDate(s.date).date}
+												</span>
+												<span className="block text-muted-foreground text-xs tabular-nums">
+													{formatDate(s.date).time}
+												</span>
 											</span>
 										</div>
 									);

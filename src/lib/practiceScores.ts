@@ -37,15 +37,10 @@ export function formatTime(ms: number): string {
 	return `${mins}m ${secs}s`;
 }
 
-export function formatDate(ts: number): string {
+export function formatDate(ts: number): { date: string; time: string } {
 	const d = new Date(ts);
-	const now = new Date();
-	const isToday =
-		d.getFullYear() === now.getFullYear() &&
-		d.getMonth() === now.getMonth() &&
-		d.getDate() === now.getDate();
-	if (isToday) {
-		return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-	}
-	return d.toLocaleDateString([], { month: "short", day: "numeric" });
+	return {
+		date: d.toLocaleDateString([], { month: "short", day: "numeric" }),
+		time: d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+	};
 }
