@@ -1,9 +1,8 @@
 ---
-
 name: work-issue
 description: Work one GitHub issue end-to-end in autonomous mode, using Superpowers for planning, execution, checkpoints, and PR handoff
 allowed-tools: Bash(gh *), Bash(git *), Bash(pnpm *), Bash(node *), Bash(ls *), Bash(cat *), Bash(grep *), Read, Edit, Write, MultiEdit, Grep, Glob, Task
----------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 You are working on GitHub issue $ARGUMENTS for this repository.
 
