@@ -37,6 +37,16 @@ src/
 - Use shadcn/ui primitives for all UI controls
 - SVG rendered as React components (not canvas, not d3)
 
+## GitHub comment attribution
+
+Any comment Claude posts to a GitHub issue or PR must end with an attribution footer:
+
+```
+— Claude
+```
+
+This applies to: checkpoint comments, triage comments, review replies, PR summaries, and any other comment posted via `gh issue comment`, `gh pr comment`, or the GitHub API. Never omit this footer.
+
 ## Git conventions
 
 - Branch names are **prefixed by change type**: `feat/...`, `fix/...`, or `refactor/...`
