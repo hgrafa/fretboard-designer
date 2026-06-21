@@ -30,24 +30,24 @@ export function ChallengeIdentifyNote({ challenge, onAnswer }: Props) {
 	}
 
 	return (
-		<div className="flex flex-col items-center gap-10 w-full">
-			<div className="text-center space-y-2">
+		<div className="flex flex-col items-center gap-8">
+			<div className="text-center space-y-3">
 				<p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
 					{t("ui.practice.whatNote", {
 						interval: t(`ui.intervals.${challenge.interval}`),
 						root: challenge.root,
 					})}
 				</p>
-				<span className="block text-7xl font-black tracking-tight mt-4">
+				<span className="block text-6xl font-black tracking-tight mt-2">
 					{challenge.root}
 				</span>
 			</div>
-			<div className="flex flex-col md:flex-row gap-3 w-full">
+			<div className="grid grid-cols-3 gap-3 w-full">
 				{challenge.options.map((opt) => (
 					<Button
 						key={opt}
 						variant={buttonVariant(opt)}
-						className="h-14 text-base w-full"
+						className="aspect-square h-auto text-2xl font-black"
 						onClick={() => pick(opt)}
 						disabled={Boolean(selected)}
 					>

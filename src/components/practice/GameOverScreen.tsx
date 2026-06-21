@@ -20,7 +20,7 @@ export function GameOverScreen({
 	const rank = scores.findIndex((s) => s.date === endedAt) + 1 || null;
 
 	return (
-		<div className="flex flex-col items-center justify-center h-full gap-8 px-6">
+		<div className="flex flex-col items-center gap-8 px-6 py-10">
 			<div className="text-center space-y-3">
 				<p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
 					{t("ui.practice.timeUp")}

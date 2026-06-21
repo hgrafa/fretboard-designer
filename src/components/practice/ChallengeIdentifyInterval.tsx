@@ -30,27 +30,27 @@ export function ChallengeIdentifyInterval({ challenge, onAnswer }: Props) {
 	}
 
 	return (
-		<div className="flex flex-col items-center gap-10 w-full">
-			<div className="text-center space-y-2">
+		<div className="flex flex-col items-center gap-8">
+			<div className="text-center space-y-3">
 				<p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
 					{t("ui.practice.whatInterval")}
 				</p>
-				<div className="flex items-center justify-center gap-5 mt-4">
-					<span className="text-6xl font-black tracking-tight">
+				<div className="flex items-center justify-center gap-4">
+					<span className="text-5xl font-black tracking-tight">
 						{challenge.root}
 					</span>
-					<span className="text-3xl text-muted-foreground">→</span>
-					<span className="text-6xl font-black tracking-tight">
+					<span className="text-2xl text-muted-foreground">→</span>
+					<span className="text-5xl font-black tracking-tight">
 						{challenge.target}
 					</span>
 				</div>
 			</div>
-			<div className="flex flex-col md:flex-row gap-3 w-full">
+			<div className="grid grid-cols-3 gap-3 w-full">
 				{challenge.options.map((opt) => (
 					<Button
 						key={opt}
 						variant={buttonVariant(opt)}
-						className="h-14 text-base w-full"
+						className="aspect-square h-auto text-sm font-semibold leading-tight text-center whitespace-normal"
 						onClick={() => pick(opt)}
 						disabled={Boolean(selected)}
 					>
