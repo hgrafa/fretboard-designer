@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useInstrument } from "@/hooks/useFretboardContext";
 import { usePracticeGame } from "@/hooks/usePracticeGame";
+import { ChallengeFretboardMark } from "./ChallengeFretboardMark";
 import { ChallengeIdentifyInterval } from "./ChallengeIdentifyInterval";
 import { ChallengeIdentifyNote } from "./ChallengeIdentifyNote";
 import { GameHeader } from "./GameHeader";
@@ -10,7 +11,8 @@ import { GameOverScreen } from "./GameOverScreen";
 export function PracticeView() {
 	const { t } = useTranslation();
 	const { tuning } = useInstrument();
-	const { state, start, answer, restart } = usePracticeGame(tuning);
+	const { state, start, answer, togglePosition, submitFretboard, restart } =
+		usePracticeGame(tuning);
 
 	if (state.phase === "game_over") {
 		return <GameOverScreen score={state.score} onRestart={restart} />;
@@ -48,9 +50,13 @@ export function PracticeView() {
 					/>
 				)}
 				{state.challenge?.type === "fretboard-mark" && (
-					<div className="text-muted-foreground">
-						Fretboard challenge — coming in next task
-					</div>
+					<ChallengeFretboardMark
+						challenge={state.challenge}
+						tuning={tuning}
+						markedPositions={state.markedPositions}
+						onToggle={togglePosition}
+						onSubmit={submitFretboard}
+					/>
 				)}
 			</div>
 		</div>
