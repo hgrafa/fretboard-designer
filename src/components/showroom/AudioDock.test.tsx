@@ -56,7 +56,7 @@ describe("AudioDock", () => {
 		expect(api.skip).toHaveBeenNthCalledWith(2, 10);
 	});
 
-	it("changes playback speed", () => {
+	it("changes playback speed via preset label", () => {
 		const api = fakeApi();
 		render(
 			<AudioDock
@@ -68,11 +68,11 @@ describe("AudioDock", () => {
 			/>,
 		);
 		fireEvent.click(screen.getByRole("button", { name: /speed/i }));
-		fireEvent.click(screen.getByRole("button", { name: "0.5×" }));
+		fireEvent.click(screen.getByRole("button", { name: ".5" }));
 		expect(api.setPlaybackRate).toHaveBeenCalledWith(0.5);
 	});
 
-	it("offers fine-grained slow speeds (0.7, 0.8, 0.9)", () => {
+	it("speed slider covers slow practice tempos via accessible range", () => {
 		const api = fakeApi();
 		render(
 			<AudioDock
@@ -84,12 +84,9 @@ describe("AudioDock", () => {
 			/>,
 		);
 		fireEvent.click(screen.getByRole("button", { name: /speed/i }));
-		for (const rate of [0.7, 0.8, 0.9]) {
-			expect(
-				screen.getByRole("button", { name: `${rate}×` }),
-			).toBeInTheDocument();
-		}
-		fireEvent.click(screen.getByRole("button", { name: "0.8×" }));
-		expect(api.setPlaybackRate).toHaveBeenCalledWith(0.8);
+		const slider = screen.getByRole("slider", { name: /playback speed/i });
+		expect(slider).toHaveAttribute("aria-valuemin", "0.25");
+		expect(slider).toHaveAttribute("aria-valuemax", "2");
+		expect(Number(slider.getAttribute("aria-valuenow"))).toBeCloseTo(1);
 	});
 });
