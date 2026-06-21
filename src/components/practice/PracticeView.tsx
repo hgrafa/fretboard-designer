@@ -89,7 +89,7 @@ export function PracticeView() {
 	return (
 		<div className="flex items-center justify-center h-full p-4">
 			<div
-				className={`w-full rounded-2xl border border-border shadow-lg overflow-hidden ${isFretboard ? "max-w-2xl" : "max-w-md"}`}
+				className={`w-full rounded-2xl border border-border shadow-lg overflow-hidden ${isFretboard ? "max-w-2xl" : "max-w-lg"}`}
 			>
 				<GameHeader
 					score={state.score}
