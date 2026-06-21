@@ -1,5 +1,11 @@
 import { Guitar, Music4, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+} from "@/components/ui/select";
 import { useView } from "@/hooks/ViewContext";
 import i18n from "@/i18n/index";
 import type { AppView } from "@/types/showroom";
@@ -30,16 +36,12 @@ function USFlag() {
 export function AppSidebar() {
 	const { t } = useTranslation();
 	const { view, setView, sidebarCollapsed, toggleSidebar } = useView();
-	const isPt = i18n.language.startsWith("pt");
+	const lang = i18n.language.startsWith("pt") ? "pt-BR" : "en";
 
 	const NAV: { view: AppView; label: string; icon: typeof Guitar }[] = [
 		{ view: "fretboard", label: t("ui.sidebar.fretboard"), icon: Guitar },
 		{ view: "showroom", label: t("ui.sidebar.showroom"), icon: Music4 },
 	];
-
-	function toggleLanguage() {
-		i18n.changeLanguage(isPt ? "en" : "pt-BR");
-	}
 
 	return (
 		<aside
@@ -72,15 +74,28 @@ export function AppSidebar() {
 			<div
 				className={`px-2 pb-1 ${sidebarCollapsed ? "flex justify-center" : ""}`}
 			>
-				<button
-					type="button"
-					onClick={toggleLanguage}
-					aria-label={t("ui.sidebar.langToggle")}
-					title={t("ui.sidebar.langToggle")}
-					className="flex size-9 items-center justify-center rounded-full border border-input bg-background hover:bg-muted"
-				>
-					{isPt ? <USFlag /> : <BrazilFlag />}
-				</button>
+				<Select value={lang} onValueChange={(v) => i18n.changeLanguage(v)}>
+					<SelectTrigger
+						size="sm"
+						aria-label={t("ui.sidebar.langToggle")}
+						className={sidebarCollapsed ? "w-auto gap-1 px-2" : "w-full"}
+					>
+						{lang === "pt-BR" ? <BrazilFlag /> : <USFlag />}
+						{!sidebarCollapsed && (
+							<span className="text-xs">
+								{lang === "pt-BR" ? "Português" : "English"}
+							</span>
+						)}
+					</SelectTrigger>
+					<SelectContent position="popper" align="start">
+						<SelectItem value="en">
+							<USFlag /> English
+						</SelectItem>
+						<SelectItem value="pt-BR">
+							<BrazilFlag /> Português
+						</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 
 			<nav className="flex flex-col gap-1 p-2">

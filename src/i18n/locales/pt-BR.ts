@@ -8,7 +8,7 @@ const ptBR: TranslationSchema = {
 			collapse: "Recolher menu",
 			fretboard: "Braço",
 			showroom: "Showroom",
-			langToggle: "Mudar para Inglês",
+			langToggle: "Selecionar idioma",
 		},
 		editor: {
 			label: "Notas ou intervalos",
