@@ -47,7 +47,6 @@ export const PRACTICE_INTERVALS: IntervalName[] = [
 	"b3",
 	"3",
 	"4",
-	"b5",
 	"5",
 	"#5",
 	"6",

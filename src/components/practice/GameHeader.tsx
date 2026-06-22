@@ -62,39 +62,39 @@ export function GameHeader({
 	return (
 		<div className="flex flex-col gap-3 px-8 py-5 border-b border-border bg-card">
 			<div className="grid grid-cols-3 items-center">
-				{/* Left: lives + streak */}
-				<div className="flex items-center gap-2 justify-self-start">
-					<div className="flex gap-2 items-center">
-						{[0, 1, 2].map((i) => (
-							<PixelHeart
-								key={i}
-								filled={i < lives}
-								pixelSize={5}
-								losing={lostIdx === i}
-							/>
-						))}
+				{/* Left: lives */}
+				<div className="flex gap-2 items-center justify-self-start">
+					{[0, 1, 2].map((i) => (
+						<PixelHeart
+							key={i}
+							filled={i < lives}
+							pixelSize={5}
+							losing={lostIdx === i}
+						/>
+					))}
+				</div>
+				{/* Middle: score (streak sequence pinned to its right) */}
+				<div className="justify-self-center relative">
+					<div className="flex flex-col items-center justify-center gap-0.5 rounded-md border-2 border-border bg-muted/40 px-5 py-1.5">
+						<span className="font-pixel text-[9px] uppercase text-muted-foreground">
+							{t("ui.practice.score")}
+						</span>
+						<span
+							key={scoreKey}
+							className="font-pixel text-3xl leading-none tabular-nums anim-score-pop inline-block"
+						>
+							{score}
+						</span>
 					</div>
 					{streak >= 2 && (
 						<span
 							key={comboKey}
-							className="font-pixel text-xs text-amber-500 anim-combo-flash"
+							className="absolute left-full top-1/2 ml-3 -translate-y-1/2 whitespace-nowrap font-pixel text-sm text-amber-500 anim-combo-flash"
 							title={t("ui.practice.streak")}
 						>
 							×{streak}
 						</span>
 					)}
-				</div>
-				{/* Middle: score */}
-				<div className="justify-self-center flex flex-col items-center justify-center gap-0.5 rounded-md border-2 border-border bg-muted/40 px-5 py-1.5">
-					<span className="font-pixel text-[9px] uppercase text-muted-foreground">
-						{t("ui.practice.score")}
-					</span>
-					<span
-						key={scoreKey}
-						className="font-pixel text-3xl leading-none tabular-nums anim-score-pop inline-block"
-					>
-						{score}
-					</span>
 				</div>
 				{/* Right: sound + close */}
 				<div className="flex items-center gap-1 justify-self-end">

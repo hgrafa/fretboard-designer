@@ -105,7 +105,7 @@ export function PracticeView() {
 					onToggleMute={toggleMute}
 					onExit={requestQuit}
 				/>
-				<div className="p-8">
+				<div className="p-10">
 					{state.challenge?.type === "identify-interval" && (
 						<ChallengeIdentifyInterval
 							challenge={state.challenge}
