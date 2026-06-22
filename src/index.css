@@ -234,13 +234,17 @@
 .anim-combo-flash {
 	animation: comboFlash 0.3s ease;
 }
+.anim-burst {
+	animation: burstOut 0.35s ease-out forwards;
+}
 
 @media (prefers-reduced-motion: reduce) {
 	.anim-score-pop,
 	.anim-card-shake,
 	.anim-heart-lose,
 	.anim-prompt-in,
-	.anim-combo-flash {
+	.anim-combo-flash,
+	.anim-burst {
 		animation: none;
 	}
 	.pixel-btn {

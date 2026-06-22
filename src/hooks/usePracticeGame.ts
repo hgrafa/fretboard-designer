@@ -166,7 +166,6 @@ export function usePracticeGame(tuning: Tuning) {
 	// death. Game over only when the last heart is spent.
 	useEffect(() => {
 		if (state.phase !== "playing") return;
-		void state.timerStartedAt;
 		const id = setTimeout(() => {
 			const s = stateRef.current;
 			const nextLives = s.lives - 1;
@@ -192,7 +191,7 @@ export function usePracticeGame(tuning: Tuning) {
 			});
 		}, state.currentTimerMs);
 		return () => clearTimeout(id);
-	}, [state.timerStartedAt, state.phase, state.currentTimerMs]);
+	}, [state.phase, state.currentTimerMs]);
 
 	// End round when lives reach 0
 	useEffect(() => {

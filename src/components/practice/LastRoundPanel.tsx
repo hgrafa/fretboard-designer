@@ -19,6 +19,7 @@ export function LastRoundPanel({
 }: LastRoundPanelProps) {
 	const { t } = useTranslation();
 	const scores = loadScores();
+	// A zero-score round is never saved (guarded in the hook), so findIndex returns -1 → +1 = 0 → || null (no rank badge).
 	const rank = scores.findIndex((s) => s.date === endedAt) + 1 || null;
 
 	return (

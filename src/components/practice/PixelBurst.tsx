@@ -1,6 +1,6 @@
 // One-shot pixel star-burst: a handful of small squares fly outward and fade.
-// Purely decorative; respects prefers-reduced-motion via the burstOut keyframe
-// being the only motion (caller may skip mounting it under reduced motion).
+// Purely decorative; disabled under prefers-reduced-motion via the .anim-burst
+// CSS class (neutralised to `animation: none` in the reduced-motion media block).
 const PARTICLES = [
 	{ tx: "-22px", ty: "-18px", color: "#fbbf24" },
 	{ tx: "20px", ty: "-20px", color: "#34d399" },
@@ -20,6 +20,7 @@ export function PixelBurst() {
 				<span
 					// biome-ignore lint/suspicious/noArrayIndexKey: static particle list
 					key={i}
+					className="anim-burst"
 					style={{
 						position: "absolute",
 						width: 6,
@@ -28,7 +29,6 @@ export function PixelBurst() {
 						// custom props consumed by the burstOut keyframe
 						["--tx" as string]: p.tx,
 						["--ty" as string]: p.ty,
-						animation: "burstOut 0.35s ease-out forwards",
 					}}
 				/>
 			))}
