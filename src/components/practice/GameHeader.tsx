@@ -60,7 +60,7 @@ export function GameHeader({
 	}, [lives]);
 
 	return (
-		<div className="flex flex-col gap-3 px-6 py-4 border-b border-border bg-card">
+		<div className="flex flex-col gap-3 px-8 py-5 border-b border-border bg-card">
 			<div className="grid grid-cols-3 items-center">
 				{/* Left: lives + streak */}
 				<div className="flex items-center gap-2 justify-self-start">

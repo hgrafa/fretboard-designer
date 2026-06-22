@@ -93,7 +93,7 @@ export function PracticeView() {
 		<div className="flex items-center justify-center h-full p-4">
 			<div
 				key={shakeKey}
-				className={`w-full rounded-2xl border border-border shadow-lg overflow-hidden ${shakeKey > 0 ? "anim-card-shake" : ""} ${isFretboard ? "max-w-2xl" : "max-w-lg"}`}
+				className={`w-full rounded-2xl border border-border shadow-lg overflow-hidden ${shakeKey > 0 ? "anim-card-shake" : ""} ${isFretboard ? "max-w-2xl" : "max-w-xl"}`}
 			>
 				<GameHeader
 					score={state.score}
@@ -105,7 +105,7 @@ export function PracticeView() {
 					onToggleMute={toggleMute}
 					onExit={requestQuit}
 				/>
-				<div className="p-6">
+				<div className="p-8">
 					{state.challenge?.type === "identify-interval" && (
 						<ChallengeIdentifyInterval
 							challenge={state.challenge}

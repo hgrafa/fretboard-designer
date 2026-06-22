@@ -35,7 +35,7 @@ export function ChallengeIdentifyInterval({ challenge, onAnswer }: Props) {
 
 	function buttonClass(opt: IntervalName): string {
 		const base =
-			"pixel-btn w-full aspect-square h-auto text-sm font-semibold leading-tight text-center whitespace-normal transition-all duration-200";
+			"pixel-btn w-full min-h-24 h-auto px-3 py-4 text-base font-semibold leading-tight text-center whitespace-normal transition-all duration-200";
 		if (!selected) return base;
 		if (opt === challenge.answer) {
 			// Picked right → blink green/white; picked wrong → steady green reveal.
@@ -54,9 +54,9 @@ export function ChallengeIdentifyInterval({ challenge, onAnswer }: Props) {
 	}
 
 	return (
-		<div className="flex flex-col items-center gap-8">
+		<div className="flex flex-col items-center gap-10">
 			<div
-				className="text-center space-y-3 anim-prompt-in"
+				className="text-center space-y-4 anim-prompt-in"
 				key={`${challenge.root}-${challenge.target}`}
 			>
 				<p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -72,7 +72,7 @@ export function ChallengeIdentifyInterval({ challenge, onAnswer }: Props) {
 					</span>
 				</div>
 			</div>
-			<div className="grid grid-cols-3 gap-3 w-full">
+			<div className="grid grid-cols-3 gap-4 w-full">
 				{challenge.options.map((opt) => (
 					<div key={opt} className="relative">
 						{showBurst && opt === challenge.answer && <PixelBurst />}
