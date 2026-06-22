@@ -6,10 +6,11 @@ import type {
 } from "@/core/practice";
 import {
 	checkFretboardAnswer,
+	durationForStreak,
 	generateChallenge,
-	nextDuration,
 	TIMER_CONFIG,
 } from "@/core/practice";
+import { playWrong } from "@/lib/practiceAudio";
 import { saveScore } from "@/lib/practiceScores";
 import type {
 	FretPosition,
@@ -22,6 +23,7 @@ export interface LastResult {
 	score: number;
 	totalTimeMs: number;
 	endedAt: number;
+	maxStreak: number;
 }
 
 export interface PracticeState {
@@ -29,7 +31,8 @@ export interface PracticeState {
 	challenge: Challenge | null;
 	score: number;
 	lives: number;
-	durations: Record<ChallengeType, number>;
+	streak: number;
+	maxStreak: number;
 	timerStartedAt: number;
 	currentTimerMs: number;
 	markedPositions: Set<string>;
@@ -46,28 +49,22 @@ type Action =
 				isCorrect: boolean;
 				nextChallenge: Challenge;
 				now: number;
-				newDuration: number;
-				prevType: ChallengeType;
+				nextStreak: number;
+				nextMaxStreak: number;
 				nextLives: number;
+				nextTimerMs: number;
 			};
 	  }
 	| { type: "TOGGLE_POSITION"; payload: string }
-	| { type: "TIMEOUT"; payload: number }
-	| { type: "GAME_OVER"; payload: number }
-	| { type: "RESTART" };
-
-const INITIAL_DURATIONS: Record<ChallengeType, number> = {
-	"identify-interval": TIMER_CONFIG["identify-interval"].start,
-	"identify-note": TIMER_CONFIG["identify-note"].start,
-	"fretboard-mark": TIMER_CONFIG["fretboard-mark"].start,
-};
+	| { type: "GAME_OVER"; payload: number };
 
 const INITIAL_STATE: PracticeState = {
 	phase: "idle",
 	challenge: null,
 	score: 0,
 	lives: 3,
-	durations: { ...INITIAL_DURATIONS },
+	streak: 0,
+	maxStreak: 0,
 	timerStartedAt: 0,
 	currentTimerMs: 0,
 	markedPositions: new Set(),
@@ -100,9 +97,8 @@ function reducer(state: PracticeState, action: Action): PracticeState {
 				...INITIAL_STATE,
 				phase: "playing",
 				challenge,
-				durations: { ...INITIAL_DURATIONS },
 				timerStartedAt: now,
-				currentTimerMs: INITIAL_DURATIONS[challenge.type],
+				currentTimerMs: TIMER_CONFIG[challenge.type].start,
 				gameStartedAt: now,
 			};
 		}
@@ -111,19 +107,20 @@ function reducer(state: PracticeState, action: Action): PracticeState {
 				isCorrect,
 				nextChallenge,
 				now,
-				newDuration,
-				prevType,
+				nextStreak,
+				nextMaxStreak,
 				nextLives,
+				nextTimerMs,
 			} = action.payload;
-			const newDurations = { ...state.durations, [prevType]: newDuration };
 			return {
 				...state,
 				score: isCorrect ? state.score + 1 : state.score,
 				lives: nextLives,
-				durations: newDurations,
+				streak: nextStreak,
+				maxStreak: nextMaxStreak,
 				challenge: nextChallenge,
 				timerStartedAt: now,
-				currentTimerMs: newDurations[nextChallenge.type],
+				currentTimerMs: nextTimerMs,
 				markedPositions: new Set(),
 			};
 		}
@@ -136,19 +133,6 @@ function reducer(state: PracticeState, action: Action): PracticeState {
 			}
 			return { ...state, markedPositions: next };
 		}
-		case "TIMEOUT": {
-			const endedAt = action.payload;
-			return {
-				...state,
-				phase: "game_over",
-				endedAt,
-				lastResult: {
-					score: state.score,
-					totalTimeMs: endedAt - state.gameStartedAt,
-					endedAt,
-				},
-			};
-		}
 		case "GAME_OVER": {
 			const endedAt = action.payload;
 			return {
@@ -159,11 +143,10 @@ function reducer(state: PracticeState, action: Action): PracticeState {
 					score: state.score,
 					totalTimeMs: endedAt - state.gameStartedAt,
 					endedAt,
+					maxStreak: state.maxStreak,
 				},
 			};
 		}
-		case "RESTART":
-			return { ...INITIAL_STATE, lastResult: state.lastResult };
 		default:
 			return state;
 	}
@@ -174,17 +157,40 @@ export function usePracticeGame(tuning: Tuning) {
 	const tuningRef = useRef(tuning);
 	tuningRef.current = tuning;
 
-	// Countdown timer — single shot per challenge.
-	// state.timerStartedAt is intentionally listed: it is the signal that a new
-	// challenge has arrived and the countdown should restart even when
-	// currentTimerMs happens to be the same value.
+	const stateRef = useRef(state);
+	stateRef.current = state;
+
+	// Countdown timer — single shot per challenge. timerStartedAt is the reset
+	// signal. On expiry: lose a heart and (if any hearts remain) advance to the
+	// next challenge with the streak reset — a timeout is forgiving, not instant
+	// death. Game over only when the last heart is spent.
 	useEffect(() => {
 		if (state.phase !== "playing") return;
-		void state.timerStartedAt; // declare dep explicitly; reset signal
-		const id = setTimeout(
-			() => dispatch({ type: "TIMEOUT", payload: Date.now() }),
-			state.currentTimerMs,
-		);
+		void state.timerStartedAt;
+		const id = setTimeout(() => {
+			const s = stateRef.current;
+			const nextLives = s.lives - 1;
+			if (nextLives <= 0) {
+				playWrong();
+				dispatch({ type: "GAME_OVER", payload: Date.now() });
+				return;
+			}
+			playWrong();
+			const nextType = pickRandomType(s.score);
+			const nextChallenge = generateChallenge(nextType, tuningRef.current);
+			dispatch({
+				type: "NEXT",
+				payload: {
+					isCorrect: false,
+					nextChallenge,
+					now: Date.now(),
+					nextStreak: 0,
+					nextMaxStreak: s.maxStreak,
+					nextLives,
+					nextTimerMs: durationForStreak(0, nextType),
+				},
+			});
+		}, state.currentTimerMs);
 		return () => clearTimeout(id);
 	}, [state.timerStartedAt, state.phase, state.currentTimerMs]);
 
@@ -212,13 +218,9 @@ export function usePracticeGame(tuning: Tuning) {
 		dispatch({ type: "START", payload: { challenge, now: Date.now() } });
 	}
 
-	function answer(ans: IntervalName | NoteName) {
-		if (!state.challenge || state.challenge.type === "fretboard-mark") return;
-		const isCorrect = ans === state.challenge.answer;
-		const prevType = state.challenge.type;
-		const newDuration = isCorrect
-			? nextDuration(state.durations[prevType], prevType)
-			: state.durations[prevType];
+	function advance(isCorrect: boolean) {
+		const nextStreak = isCorrect ? state.streak + 1 : 0;
+		const nextMaxStreak = Math.max(state.maxStreak, nextStreak);
 		const nextLives = isCorrect ? state.lives : state.lives - 1;
 		const nextScore = isCorrect ? state.score + 1 : state.score;
 		const nextType = pickRandomType(nextScore);
@@ -229,11 +231,18 @@ export function usePracticeGame(tuning: Tuning) {
 				isCorrect,
 				nextChallenge,
 				now: Date.now(),
-				newDuration,
-				prevType,
+				nextStreak,
+				nextMaxStreak,
 				nextLives,
+				nextTimerMs: durationForStreak(nextStreak, nextType),
 			},
 		});
+	}
+
+	function answer(ans: IntervalName | NoteName) {
+		if (!state.challenge || state.challenge.type === "fretboard-mark") return;
+		const isCorrect = ans === state.challenge.answer;
+		advance(isCorrect);
 	}
 
 	function togglePosition(pos: FretPosition) {
@@ -250,30 +259,8 @@ export function usePracticeGame(tuning: Tuning) {
 			state.challenge as FretboardMarkChallenge,
 			state.markedPositions,
 		);
-		const prevType = state.challenge.type;
-		const newDuration = isCorrect
-			? nextDuration(state.durations[prevType], prevType)
-			: state.durations[prevType];
-		const nextLives = isCorrect ? state.lives : state.lives - 1;
-		const nextScore = isCorrect ? state.score + 1 : state.score;
-		const nextType = pickRandomType(nextScore);
-		const nextChallenge = generateChallenge(nextType, tuningRef.current);
-		dispatch({
-			type: "NEXT",
-			payload: {
-				isCorrect,
-				nextChallenge,
-				now: Date.now(),
-				newDuration,
-				prevType,
-				nextLives,
-			},
-		});
+		advance(isCorrect);
 		return isCorrect;
-	}
-
-	function restart() {
-		dispatch({ type: "RESTART" });
 	}
 
 	const totalTimeMs =
@@ -286,6 +273,5 @@ export function usePracticeGame(tuning: Tuning) {
 		answer,
 		togglePosition,
 		submitFretboard,
-		restart,
 	};
 }
