@@ -3,8 +3,8 @@ import { resolveInterval } from "@/core/notes";
 import type { Tuning } from "@/types/music";
 import {
 	checkFretboardAnswer,
+	durationForStreak,
 	generateChallenge,
-	nextDuration,
 	TIMER_CONFIG,
 } from "./practice";
 
@@ -102,26 +102,46 @@ describe("checkFretboardAnswer", () => {
 	});
 });
 
-describe("nextDuration", () => {
-	it("reduces by step", () => {
+describe("durationForStreak", () => {
+	it("returns start at streak 0", () => {
 		const cfg = TIMER_CONFIG["identify-interval"];
-		expect(nextDuration(cfg.start, "identify-interval")).toBe(
-			cfg.start - cfg.step,
+		expect(durationForStreak(0, "identify-interval")).toBe(cfg.start);
+	});
+
+	it("clamps to floor at and beyond span", () => {
+		const cfg = TIMER_CONFIG["identify-interval"];
+		expect(durationForStreak(cfg.span, "identify-interval")).toBe(cfg.floor);
+		expect(durationForStreak(cfg.span + 7, "identify-interval")).toBe(
+			cfg.floor,
 		);
 	});
 
-	it("clamps to minimum", () => {
-		const cfg = TIMER_CONFIG["identify-interval"];
-		expect(nextDuration(cfg.min, "identify-interval")).toBe(cfg.min);
-		expect(nextDuration(cfg.min + cfg.step - 1, "identify-interval")).toBe(
-			cfg.min,
-		);
+	it("decreases monotonically across the span", () => {
+		let prev = Number.POSITIVE_INFINITY;
+		for (let s = 0; s <= TIMER_CONFIG["identify-interval"].span; s++) {
+			const d = durationForStreak(s, "identify-interval");
+			expect(d).toBeLessThanOrEqual(prev);
+			prev = d;
+		}
 	});
 
-	it("fretboard-mark has its own config", () => {
+	it("tightens slowly early and faster late (ease-out)", () => {
+		const earlyDrop =
+			durationForStreak(0, "identify-interval") -
+			durationForStreak(1, "identify-interval");
+		const span = TIMER_CONFIG["identify-interval"].span;
+		const lateDrop =
+			durationForStreak(span - 1, "identify-interval") -
+			durationForStreak(span, "identify-interval");
+		expect(earlyDrop).toBeLessThan(lateDrop);
+	});
+
+	it("never drops below floor or above start", () => {
 		const cfg = TIMER_CONFIG["fretboard-mark"];
-		expect(nextDuration(cfg.start, "fretboard-mark")).toBe(
-			cfg.start - cfg.step,
-		);
+		for (let s = -2; s <= cfg.span + 5; s++) {
+			const d = durationForStreak(s, "fretboard-mark");
+			expect(d).toBeGreaterThanOrEqual(cfg.floor);
+			expect(d).toBeLessThanOrEqual(cfg.start);
+		}
 	});
 });

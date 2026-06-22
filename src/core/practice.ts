@@ -57,11 +57,11 @@ export const PRACTICE_INTERVALS: IntervalName[] = [
 
 export const TIMER_CONFIG: Record<
 	ChallengeType,
-	{ start: number; min: number; step: number }
+	{ start: number; floor: number; span: number; power: number }
 > = {
-	"identify-interval": { start: 12000, min: 4000, step: 300 },
-	"identify-note": { start: 12000, min: 4000, step: 300 },
-	"fretboard-mark": { start: 40000, min: 15000, step: 1500 },
+	"identify-interval": { start: 16000, floor: 4500, span: 30, power: 1.6 },
+	"identify-note": { start: 16000, floor: 4500, span: 30, power: 1.6 },
+	"fretboard-mark": { start: 45000, floor: 15000, span: 20, power: 1.6 },
 };
 
 function pickRandom<T>(arr: T[]): T {
@@ -163,7 +163,13 @@ export function checkFretboardAnswer(
 	return true;
 }
 
-export function nextDuration(current: number, type: ChallengeType): number {
-	const { min, step } = TIMER_CONFIG[type];
-	return Math.max(min, current - step);
+// Gentle ease-out: barely tightens for the first several correct answers,
+// then accelerates toward `floor`, reaching it at `span`. Keyed off the
+// player's current streak (consecutive correct answers).
+export function durationForStreak(streak: number, type: ChallengeType): number {
+	const { start, floor, span, power } = TIMER_CONFIG[type];
+	if (streak <= 0) return start;
+	if (streak >= span) return floor;
+	const t = (streak / span) ** power;
+	return Math.round(start - (start - floor) * t);
 }
