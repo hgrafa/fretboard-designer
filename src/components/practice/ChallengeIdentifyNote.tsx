@@ -60,14 +60,22 @@ export function ChallengeIdentifyNote({ challenge, onAnswer }: Props) {
 				key={`${challenge.root}-${challenge.interval}`}
 			>
 				<p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-					{t("ui.practice.whatNote", {
-						interval: t(`ui.intervals.${challenge.interval}`),
-						root: challenge.root,
-					})}
+					{t("ui.practice.whatNote")}
 				</p>
-				<div className="flex items-center justify-center">
-					<span className="block text-6xl font-black tracking-tight mt-2">
+				<div className="flex items-center justify-center gap-4">
+					<span className="text-6xl font-black tracking-tight">
 						{challenge.root}
+					</span>
+					<div className="flex flex-col items-center gap-1">
+						<span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+							{t(`ui.intervals.${challenge.interval}`)}
+						</span>
+						<span className="text-2xl leading-none text-muted-foreground">
+							→
+						</span>
+					</div>
+					<span className="text-6xl font-black tracking-tight text-muted-foreground">
+						?
 					</span>
 				</div>
 			</div>

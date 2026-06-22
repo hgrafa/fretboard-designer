@@ -99,7 +99,7 @@ const ptBR: TranslationSchema = {
 			timeUp: "Tempo esgotado!",
 			finalScore: "Pontuação final",
 			whatInterval: "Que intervalo é este?",
-			whatNote: "Qual é a {{interval}} de {{root}}?",
+			whatNote: "Qual é a nota?",
 			markInterval:
 				"Marque todas as {{interval}} a partir de {{root}} no braço",
 			description:
