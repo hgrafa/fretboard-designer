@@ -77,7 +77,7 @@ Always work in a git worktree for issue work.
 
 ### Step 4 - Post A Start Checkpoint
 
-Post a checkpoint comment to the issue using the checkpoint format below. End the comment with `--Codex`.
+Post a checkpoint comment to the issue using the checkpoint format below. End the comment with `— Codex`.
 
 ## Issue Intake
 
@@ -179,7 +179,7 @@ Status: in-progress | blocked | ready-for-review
 ### Next step
 ...
 
---Codex
+— Codex
 ```
 
 If the session is about to stop, prioritize posting the checkpoint over further coding.
@@ -289,7 +289,7 @@ Focus on:
 
 After opening PR:
 
-1. Comment on the issue with the PR link and end the comment with `--Codex`.
+1. Comment on the issue with the PR link and end the comment with `— Codex`.
 2. Add or update PR labels:
    - remove `automation:in-progress`
    - add `automation:review`
@@ -345,7 +345,7 @@ git switch <branch>
 codex exec --sandbox workspace-write 'Use $address-review or $work-issue to continue ...'
 ```
 
---Codex
+— Codex
 ````
 
 Do not use blocked for ordinary implementation difficulty. Debug and continue.

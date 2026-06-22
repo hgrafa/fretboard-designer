@@ -40,7 +40,7 @@ git switch $BRANCH
 codex exec --sandbox workspace-write 'Use \$address-review to continue PR #$PR'
 \`\`\`
 
---Codex
+— Codex
 " >/dev/null 2>&1 || true
 else
 	gh issue comment "$ISSUE" --repo "$REPO" --body "## Codex automatic session checkpoint
@@ -65,6 +65,6 @@ git switch $BRANCH
 codex exec --sandbox workspace-write 'Use \$work-issue to continue issue #$ISSUE'
 \`\`\`
 
---Codex
+— Codex
 " >/dev/null 2>&1 || true
 fi

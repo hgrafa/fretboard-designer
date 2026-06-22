@@ -169,7 +169,7 @@ $status
 codex --cd "$workdir" exec --sandbox "$CODEX_SANDBOX" '$resume_prompt'
 \`\`\`
 
---Codex
+— Codex
 "
 
 	if [[ -n "${CODEX_PR_NUMBER:-}" ]]; then
@@ -319,7 +319,7 @@ Status: in-progress
 ### Next step
 Start Codex with the \$work-issue skill.
 
---Codex"
+— Codex"
 
 	WORKDIR="$(prepare_worktree "$WORKTREE" "$BRANCH" "$BASE_REF")"
 	export CODEX_WORKDIR="$WORKDIR"
@@ -364,7 +364,7 @@ PR: #$PR
 Branch: \`$BRANCH\`
 Status: addressing-review
 
---Codex" || true
+— Codex" || true
 
 	codex_exec "$WORKDIR" "Use \$address-review to address review feedback on PR #$PR."
 }

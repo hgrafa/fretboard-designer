@@ -42,7 +42,7 @@ src/
 Any comment Codex posts to a GitHub issue or PR must end with this attribution footer:
 
 ```
---Codex
+— Codex
 ```
 
 This applies to checkpoint comments, triage comments, review replies, PR summaries, and any other comment posted via `gh issue comment`, `gh pr comment`, MCP tools, or the GitHub API. Never omit this footer.

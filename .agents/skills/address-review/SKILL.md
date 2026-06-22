@@ -59,8 +59,8 @@ Fix failures you caused. Document unrelated or pre-existing failures. Never clai
 
 1. Commit with `fix: address review feedback on #<PR_NUMBER>`.
 2. Push to the same branch.
-3. Reply to each addressed review thread noting what changed. Every comment must end with `--Codex`.
-4. Post a final checkpoint comment on the PR summarizing changes per comment. End it with `--Codex`.
+3. Reply to each addressed review thread noting what changed. Every comment must end with `— Codex`.
+4. Post a final checkpoint comment on the PR summarizing changes per comment. End it with `— Codex`.
 5. Labels: remove `automation:in-progress`, add `automation:review`.
 6. Mirror `automation:review` to the linked issue:
 
@@ -97,4 +97,4 @@ When blocked:
 
 1. Add `automation:blocked`.
 2. Remove `automation:in-progress`.
-3. Post the exact blocker and safe next options in a PR comment ending with `--Codex`.
+3. Post the exact blocker and safe next options in a PR comment ending with `— Codex`.

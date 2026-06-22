@@ -70,4 +70,4 @@ Focus on:
 - Always push to a feature branch first.
 - PR descriptions must be in English.
 - If the repo has no remote yet, tell the user to set one up first.
-- Any GitHub comment posted by Codex must end with `--Codex`.
+- Any GitHub comment posted by Codex must end with `— Codex`.

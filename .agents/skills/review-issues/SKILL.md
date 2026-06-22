@@ -88,7 +88,7 @@ Post a triage comment:
 Detected: user dissatisfaction with current result.
 Action: added `automation:revise` to PR #<PR_NUMBER>.
 
---Codex
+— Codex
 ```
 
 Or:
@@ -99,7 +99,7 @@ Or:
 Detected: user dissatisfaction with current result.
 Action: re-queued issue as `automation:ready`.
 
---Codex
+— Codex
 ```
 
 ## Blocker Path
@@ -119,7 +119,7 @@ Detected: open question blocking progress.
 Quote: "<verbatim question from comment>"
 Action: added `automation:blocked`. Human follow-up needed.
 
---Codex
+— Codex
 ```
 
 ## Ask Path

@@ -55,7 +55,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 This project supports both Claude Code and Codex workflows.
 
-Codex reads durable repo guidance from `AGENTS.md` and repo-scoped skills from `.agents/skills/`. GitHub comments posted by Codex must end with `--Codex`.
+Codex reads durable repo guidance from `AGENTS.md` and repo-scoped skills from `.agents/skills/`. GitHub comments posted by Codex must end with `— Codex`.
 
 | Workflow | Claude usage | Codex usage | What it does |
 |---|---|---|---|

@@ -80,5 +80,5 @@ Print the created issue URL on a single line. If `automation:ready` was added, i
 If Codex posts a comment to the new issue, end it with:
 
 ```md
---Codex
+— Codex
 ```
