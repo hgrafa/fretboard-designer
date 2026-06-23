@@ -59,6 +59,14 @@ export function PersistentPlayer() {
 		if (!pinned) setExpanded(false);
 	}
 
+	// Commit a buffered scrub on release (pointer, touch, or keyboard).
+	function commitSeek() {
+		if (seeking !== null) {
+			api.seek(seeking);
+			setSeeking(null);
+		}
+	}
+
 	return (
 		<div
 			onMouseLeave={onLeave}
@@ -194,12 +202,8 @@ export function PersistentPlayer() {
 										seeking ?? Math.min(api.currentTime, api.duration || 0)
 									}
 									onChange={(e) => setSeeking(Number(e.target.value))}
-									onMouseUp={() => {
-										if (seeking !== null) {
-											api.seek(seeking);
-											setSeeking(null);
-										}
-									}}
+									onPointerUp={commitSeek}
+									onKeyUp={commitSeek}
 									className="flex-1 accent-foreground"
 								/>
 								<span className="w-9 font-mono text-muted-foreground text-[11px] tabular-nums">
