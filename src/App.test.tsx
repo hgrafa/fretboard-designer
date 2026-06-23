@@ -5,8 +5,8 @@ import App from "@/App";
 describe("App shell", () => {
 	it("mounts with the header and the floating nav", () => {
 		render(<App />);
-		// Brand subtitle lives only in the header.
-		expect(screen.getByText("Practice OS")).toBeInTheDocument();
+		// Brand wordmark lives in the header.
+		expect(screen.getByText("Toneward")).toBeInTheDocument();
 		// Floating nav exposes the three views as buttons.
 		expect(screen.getByRole("button", { name: "Fretboard" })).toHaveAttribute(
 			"aria-current",

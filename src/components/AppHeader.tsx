@@ -30,14 +30,9 @@ export function AppHeader() {
 					>
 						T
 					</div>
-					<div className="flex flex-col leading-none">
-						<span className="font-display font-bold text-[19px] tracking-[-0.02em]">
-							{t("ui.appName")}
-						</span>
-						<span className="mt-[3px] font-semibold text-[11px] text-muted-foreground">
-							Practice OS
-						</span>
-					</div>
+					<span className="font-display font-bold text-[19px] tracking-[-0.02em]">
+						{t("ui.appName")}
+					</span>
 				</div>
 				<div className="h-[30px] w-px bg-border" />
 				<span className="font-semibold text-secondary-foreground text-sm tracking-[-0.01em]">

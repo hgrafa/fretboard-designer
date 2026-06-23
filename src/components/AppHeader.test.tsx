@@ -20,7 +20,7 @@ function renderHeader() {
 describe("AppHeader", () => {
 	it("shows the brand lockup and the current section name", () => {
 		renderHeader();
-		expect(screen.getByText("Practice OS")).toBeInTheDocument();
+		expect(screen.getByText("Toneward")).toBeInTheDocument();
 		// Default view is "fretboard" → section label "Fretboard" (en).
 		expect(screen.getByText("Fretboard")).toBeInTheDocument();
 	});
