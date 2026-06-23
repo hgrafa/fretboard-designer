@@ -11,18 +11,21 @@ export function FretboardView() {
 	const fretboardRef = useRef<HTMLDivElement>(null);
 
 	return (
-		<div className="mx-auto max-w-5xl space-y-6 p-6">
-			<h1 className="font-bold text-2xl tracking-tight">{t("ui.appName")}</h1>
+		<div className="mx-auto max-w-[1180px] space-y-[18px] px-10 py-8 pl-24">
+			<h1 className="font-bold font-display text-[30px] tracking-[-0.025em]">
+				{t("ui.sidebar.fretboard")}
+			</h1>
 
-			<Editor />
-
-			<TuningControls />
+			<div className="grid gap-4 md:grid-cols-2">
+				<Editor />
+				<TuningControls />
+			</div>
 
 			<Toolbar fretboardRef={fretboardRef} />
 
 			<div
 				ref={fretboardRef}
-				className="overflow-x-auto rounded-lg border border-border bg-card p-4"
+				className="overflow-x-auto rounded-[18px] border border-border bg-card px-5 py-[22px]"
 			>
 				<Fretboard />
 			</div>
