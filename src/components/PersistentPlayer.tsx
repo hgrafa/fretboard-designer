@@ -1,10 +1,9 @@
 import {
+	ArrowLeftRight,
 	ChevronUp,
-	Music,
 	Pause,
 	Pin,
 	Play,
-	RefreshCw,
 	RotateCcw,
 	RotateCw,
 } from "lucide-react";
@@ -45,8 +44,12 @@ export function PersistentPlayer() {
 
 	// Auto-minimize on mouse-leave — unless pinned, or a control popover is open
 	// (its panel is portaled outside this element, so leaving would close it).
+	// Leaving also cancels an in-progress track swap.
 	function onLeave() {
-		if (!pinned && !speedOpen && !volumeOpen) setExpanded(false);
+		if (!pinned && !speedOpen && !volumeOpen) {
+			setExpanded(false);
+			setSwapping(false);
+		}
 	}
 
 	function seekFromClick(e: React.MouseEvent<HTMLButtonElement>) {
@@ -67,7 +70,7 @@ export function PersistentPlayer() {
 
 			{!expanded ? (
 				/* ---- mini pill ---- */
-				<div className="flex items-center gap-2 px-2.5 py-2">
+				<div className="player-pop flex items-center gap-2 px-2.5 py-2">
 					<button
 						type="button"
 						aria-label={
@@ -110,24 +113,19 @@ export function PersistentPlayer() {
 				</div>
 			) : (
 				/* ---- expanded card ---- */
-				<div className="flex flex-col gap-3 p-3.5">
+				<div className="player-pop flex flex-col gap-3 p-3.5">
 					<div className="flex items-center justify-between">
 						<span className="font-display font-bold text-sm">
 							{t("ui.player.title")}
 						</span>
 						<div className="flex items-center gap-1">
-							{hasTrack && (
+							{hasTrack && !swapping && (
 								<button
 									type="button"
-									onClick={() => setSwapping((s) => !s)}
-									aria-pressed={swapping}
-									className={`flex h-7 items-center gap-1.5 rounded-md px-2.5 font-semibold text-xs transition-colors ${
-										swapping
-											? "bg-white text-[#23201c]"
-											: "bg-white/10 text-white/80 hover:bg-white/20"
-									}`}
+									onClick={() => setSwapping(true)}
+									className="flex h-7 items-center gap-1.5 rounded-md bg-white/10 px-2.5 font-semibold text-white/80 text-xs transition-colors hover:bg-white/20"
 								>
-									<RefreshCw className="size-3.5" />
+									<ArrowLeftRight className="size-3.5" />
 									{t("ui.player.switch")}
 								</button>
 							)}
@@ -150,13 +148,8 @@ export function PersistentPlayer() {
 						<PlayerLoader />
 					) : (
 						<>
-							<div className="flex items-center gap-3">
-								<div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-brand-gradient">
-									<Music className="size-5 text-white" />
-								</div>
-								<span className="min-w-0 flex-1 truncate font-semibold text-sm">
-									{source.title}
-								</span>
+							<div className="truncate font-semibold text-sm">
+								{source.title}
 							</div>
 
 							{/* seek (gradient progress, click to scrub) */}
@@ -186,9 +179,12 @@ export function PersistentPlayer() {
 									type="button"
 									aria-label={t("ui.showroom.seekBack")}
 									onClick={() => api.skip(-10)}
-									className="text-white/70 hover:text-white"
+									className="relative flex size-9 items-center justify-center text-white/70 hover:text-white"
 								>
-									<RotateCcw className="size-5" />
+									<RotateCcw className="size-8" strokeWidth={1.5} />
+									<span className="absolute font-bold text-[8px] tabular-nums">
+										10
+									</span>
 								</button>
 								<button
 									type="button"
@@ -210,9 +206,12 @@ export function PersistentPlayer() {
 									type="button"
 									aria-label={t("ui.showroom.seekForward")}
 									onClick={() => api.skip(10)}
-									className="text-white/70 hover:text-white"
+									className="relative flex size-9 items-center justify-center text-white/70 hover:text-white"
 								>
-									<RotateCw className="size-5" />
+									<RotateCw className="size-8" strokeWidth={1.5} />
+									<span className="absolute font-bold text-[8px] tabular-nums">
+										10
+									</span>
 								</button>
 							</div>
 
