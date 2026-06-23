@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { AppHeader } from "@/components/AppHeader";
 import { AudioDevicesProvider } from "@/hooks/AudioDevicesContext";
 import { MetronomeProvider } from "@/hooks/MetronomeContext";
+import { StudyTimerProvider } from "@/hooks/StudyTimerContext";
 import { ViewProvider } from "@/hooks/ViewContext";
 
 function renderHeader() {
@@ -10,7 +11,9 @@ function renderHeader() {
 		<ViewProvider>
 			<AudioDevicesProvider>
 				<MetronomeProvider>
-					<AppHeader />
+					<StudyTimerProvider>
+						<AppHeader />
+					</StudyTimerProvider>
 				</MetronomeProvider>
 			</AudioDevicesProvider>
 		</ViewProvider>,

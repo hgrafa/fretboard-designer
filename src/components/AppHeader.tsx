@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { AudioControlPanel } from "@/components/AudioControlPanel";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { MetronomePanel } from "@/components/MetronomePanel";
+import { StudyTimerButton } from "@/components/StudyTimerButton";
 import { useView } from "@/hooks/ViewContext";
 import type { AppView } from "@/types/showroom";
 
@@ -40,6 +41,7 @@ export function AppHeader() {
 				</span>
 			</div>
 			<div className="flex items-center gap-2">
+				<StudyTimerButton />
 				<LanguageToggle />
 				<MetronomePanel />
 				<AudioControlPanel />

@@ -1,16 +1,13 @@
 import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { FloatingNav } from "@/components/FloatingNav";
-import { StudyTimerProvider } from "@/hooks/StudyTimerContext";
 import { ViewProvider } from "@/hooks/ViewContext";
 
 describe("FloatingNav", () => {
 	it("renders the three views and marks the active one", () => {
 		render(
 			<ViewProvider>
-				<StudyTimerProvider>
-					<FloatingNav />
-				</StudyTimerProvider>
+				<FloatingNav />
 			</ViewProvider>,
 		);
 		const fretboard = screen.getByRole("button", { name: "Fretboard" });
@@ -26,9 +23,7 @@ describe("FloatingNav", () => {
 	it("switches the active view on click", () => {
 		render(
 			<ViewProvider>
-				<StudyTimerProvider>
-					<FloatingNav />
-				</StudyTimerProvider>
+				<FloatingNav />
 			</ViewProvider>,
 		);
 		act(() => screen.getByRole("button", { name: "Showroom" }).click());

@@ -1,18 +1,13 @@
 import { Minus, Pause, Play, Plus, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { type TimerMode, useStudyTimer } from "@/hooks/StudyTimerContext";
+import {
+	formatClock,
+	type TimerMode,
+	useStudyTimer,
+} from "@/hooks/StudyTimerContext";
 
 const PRESETS = [5, 15, 25, 45] as const;
 const MODES: TimerMode[] = ["up", "down"];
-
-function formatClock(total: number): string {
-	const s = Math.max(0, Math.floor(total));
-	const h = Math.floor(s / 3600);
-	const m = Math.floor((s % 3600) / 60);
-	const sec = s % 60;
-	const pad = (n: number) => n.toString().padStart(2, "0");
-	return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${pad(m)}:${pad(sec)}`;
-}
 
 export function StudyTimerPanel() {
 	const { t } = useTranslation();

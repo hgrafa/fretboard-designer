@@ -10,6 +10,15 @@ import {
 
 export type TimerMode = "up" | "down";
 
+export function formatClock(total: number): string {
+	const s = Math.max(0, Math.floor(total));
+	const h = Math.floor(s / 3600);
+	const m = Math.floor((s % 3600) / 60);
+	const sec = s % 60;
+	const pad = (n: number) => n.toString().padStart(2, "0");
+	return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${pad(m)}:${pad(sec)}`;
+}
+
 // Self-contained study-time tracker. Lives at the app shell and ticks on its
 // own interval, so it is completely independent of the fretboard, the practice
 // game, the metronome, and the audio player — starting it never disturbs them.

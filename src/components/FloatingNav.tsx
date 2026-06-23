@@ -1,20 +1,12 @@
-import { Clock, Guitar, Music4, Target } from "lucide-react";
+import { Guitar, Music4, Target } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { StudyTimerPanel } from "@/components/StudyTimerPanel";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import { useStudyTimer } from "@/hooks/StudyTimerContext";
 import { useView } from "@/hooks/ViewContext";
 import type { AppView } from "@/types/showroom";
 
 export function FloatingNav() {
 	const { t } = useTranslation();
 	const { view, setView } = useView();
-	const { running } = useStudyTimer();
 	const [expanded, setExpanded] = useState(false);
 
 	const NAV: { view: AppView; label: string; icon: typeof Guitar }[] = [
@@ -51,37 +43,6 @@ export function FloatingNav() {
 					</button>
 				);
 			})}
-
-			<div className="mx-1 my-0.5 h-px bg-border" />
-
-			<Popover>
-				<PopoverTrigger asChild>
-					<button
-						type="button"
-						title={t("ui.timer.title")}
-						className="flex h-10 items-center gap-3 overflow-hidden rounded-xl px-2.5 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted data-[state=open]:bg-muted data-[state=open]:text-foreground"
-					>
-						<span className="relative shrink-0">
-							<Clock className="size-5" />
-							{running && (
-								<span className="-top-0.5 -right-0.5 absolute size-2 rounded-full bg-[#22c55e] ring-2 ring-background" />
-							)}
-						</span>
-						{expanded && (
-							<span className="whitespace-nowrap">{t("ui.timer.title")}</span>
-						)}
-					</button>
-				</PopoverTrigger>
-				<PopoverContent
-					side="right"
-					align="end"
-					sideOffset={12}
-					collisionPadding={12}
-					className="w-auto"
-				>
-					<StudyTimerPanel />
-				</PopoverContent>
-			</Popover>
 		</nav>
 	);
 }
