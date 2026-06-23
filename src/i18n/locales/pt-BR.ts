@@ -94,6 +94,10 @@ const ptBR: TranslationSchema = {
 			dismiss: "Fechar",
 			goalLabel: "Meta da sessão",
 			goalPlaceholder: "No que você está trabalhando?",
+			giveUp: "Desistir",
+			giveUpConfirm: "Desistir desta sessão?",
+			keepGoing: "Continuar",
+			newSession: "Nova sessão",
 		},
 		intervals: {
 			"1": "Uníssono",

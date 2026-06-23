@@ -1,4 +1,5 @@
-import { Minus, Pause, Play, Plus, RotateCcw } from "lucide-react";
+import { Minus, Play, Plus, RotateCcw } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	formatClock,
@@ -8,6 +9,7 @@ import {
 
 const PRESETS = [5, 15, 25, 45] as const;
 const MODES: TimerMode[] = ["up", "down"];
+const GOAL_MAX = 80;
 
 export function StudyTimerPanel() {
 	const { t } = useTranslation();
@@ -23,13 +25,90 @@ export function StudyTimerPanel() {
 		goal,
 		setGoal,
 		start,
-		pause,
 		reset,
-		dismissFinished,
 	} = useStudyTimer();
+	const [confirming, setConfirming] = useState(false);
 
 	const display = mode === "up" ? elapsed : remaining;
+	const trimmedGoal = goal.trim();
 
+	// ---- Finished: a countdown reached zero ----
+	if (finished) {
+		return (
+			<div className="flex w-72 flex-col gap-3">
+				<span className="font-display font-bold text-sm">
+					{t("ui.timer.title")}
+				</span>
+				<div className="rounded-xl border border-[#22c55e]/40 bg-[#22c55e]/10 p-4 text-center">
+					<p className="font-display font-bold text-[#15803d] text-base">
+						{trimmedGoal || t("ui.timer.congrats")} 🎉
+					</p>
+				</div>
+				<button
+					type="button"
+					onClick={reset}
+					className="flex h-9 items-center justify-center rounded-lg bg-foreground font-semibold text-background text-sm"
+				>
+					{t("ui.timer.newSession")}
+				</button>
+			</div>
+		);
+	}
+
+	// ---- Running: locked; the only action is a confirmed give-up ----
+	if (running) {
+		return (
+			<div className="flex w-72 flex-col gap-3">
+				<span className="font-display font-bold text-sm">
+					{t("ui.timer.title")}
+				</span>
+				<div className="text-center font-bold font-display text-5xl text-foreground tabular-nums tracking-tight">
+					{formatClock(display)}
+				</div>
+				{trimmedGoal && (
+					<p className="line-clamp-2 text-center text-secondary-foreground text-xs">
+						{goal}
+					</p>
+				)}
+				{confirming ? (
+					<div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/50 p-3 text-center">
+						<p className="font-medium text-secondary-foreground text-sm">
+							{t("ui.timer.giveUpConfirm")}
+						</p>
+						<div className="flex gap-2">
+							<button
+								type="button"
+								onClick={() => setConfirming(false)}
+								className="h-9 flex-1 rounded-lg border border-border bg-card font-semibold text-secondary-foreground text-sm hover:bg-muted"
+							>
+								{t("ui.timer.keepGoing")}
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									reset();
+									setConfirming(false);
+								}}
+								className="h-9 flex-1 rounded-lg bg-destructive font-semibold text-sm text-white"
+							>
+								{t("ui.timer.giveUp")}
+							</button>
+						</div>
+					</div>
+				) : (
+					<button
+						type="button"
+						onClick={() => setConfirming(true)}
+						className="flex h-9 items-center justify-center rounded-lg border border-border bg-card font-semibold text-destructive text-sm hover:bg-muted"
+					>
+						{t("ui.timer.giveUp")}
+					</button>
+				)}
+			</div>
+		);
+	}
+
+	// ---- Setup: configure mode / duration / goal, then start ----
 	return (
 		<div className="flex w-72 flex-col gap-3">
 			<div className="flex items-center justify-between">
@@ -64,9 +143,8 @@ export function StudyTimerPanel() {
 						<button
 							type="button"
 							aria-label="-5 min"
-							disabled={running}
 							onClick={() => setDurationMin(durationMin - 5)}
-							className="flex size-7 items-center justify-center rounded-md border border-border bg-card text-secondary-foreground hover:bg-muted disabled:opacity-40"
+							className="flex size-7 items-center justify-center rounded-md border border-border bg-card text-secondary-foreground hover:bg-muted"
 						>
 							<Minus className="size-4" />
 						</button>
@@ -76,9 +154,8 @@ export function StudyTimerPanel() {
 						<button
 							type="button"
 							aria-label="+5 min"
-							disabled={running}
 							onClick={() => setDurationMin(durationMin + 5)}
-							className="flex size-7 items-center justify-center rounded-md border border-border bg-card text-secondary-foreground hover:bg-muted disabled:opacity-40"
+							className="flex size-7 items-center justify-center rounded-md border border-border bg-card text-secondary-foreground hover:bg-muted"
 						>
 							<Plus className="size-4" />
 						</button>
@@ -88,9 +165,8 @@ export function StudyTimerPanel() {
 							<button
 								key={p}
 								type="button"
-								disabled={running}
 								onClick={() => setDurationMin(p)}
-								className={`rounded-md px-2 py-0.5 font-mono text-xs transition-colors disabled:opacity-40 ${
+								className={`rounded-md px-2 py-0.5 font-mono text-xs transition-colors ${
 									durationMin === p
 										? "bg-foreground text-background"
 										: "text-secondary-foreground hover:bg-muted"
@@ -106,18 +182,10 @@ export function StudyTimerPanel() {
 			<div className="flex gap-2">
 				<button
 					type="button"
-					onClick={running ? pause : start}
+					onClick={start}
 					className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-foreground font-semibold text-background text-sm"
 				>
-					{running ? (
-						<>
-							<Pause className="size-4" /> {t("ui.timer.pause")}
-						</>
-					) : (
-						<>
-							<Play className="size-4" /> {t("ui.timer.start")}
-						</>
-					)}
+					<Play className="size-4" /> {t("ui.timer.start")}
 				</button>
 				<button
 					type="button"
@@ -129,24 +197,6 @@ export function StudyTimerPanel() {
 				</button>
 			</div>
 
-			{finished && (
-				<div className="rounded-xl border border-[#22c55e]/40 bg-[#22c55e]/10 p-3 text-center">
-					<p className="font-display font-bold text-sm text-foreground">
-						🎉 {t("ui.timer.congrats")}
-					</p>
-					{goal.trim() && (
-						<p className="mt-1 text-secondary-foreground text-xs">{goal}</p>
-					)}
-					<button
-						type="button"
-						onClick={dismissFinished}
-						className="mt-2 font-semibold text-[#15803d] text-xs hover:underline"
-					>
-						{t("ui.timer.dismiss")}
-					</button>
-				</div>
-			)}
-
 			<div className="flex flex-col gap-1">
 				<span className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wide">
 					{t("ui.timer.goalLabel")}
@@ -156,6 +206,7 @@ export function StudyTimerPanel() {
 					onChange={(e) => setGoal(e.target.value)}
 					placeholder={t("ui.timer.goalPlaceholder")}
 					rows={2}
+					maxLength={GOAL_MAX}
 					className="w-full resize-none rounded-[11px] border border-input bg-muted px-3 py-2 text-foreground text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
 				/>
 			</div>

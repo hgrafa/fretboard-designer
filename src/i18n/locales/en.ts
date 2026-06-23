@@ -91,6 +91,10 @@ const en = {
 			dismiss: "Dismiss",
 			goalLabel: "Session goal",
 			goalPlaceholder: "What are you working on?",
+			giveUp: "Give up",
+			giveUpConfirm: "Give up this session?",
+			keepGoing: "Keep going",
+			newSession: "New session",
 		},
 		intervals: {
 			"1": "Perfect Unison",
