@@ -8,6 +8,7 @@ import { AudioDevicesProvider } from "@/hooks/AudioDevicesContext";
 import { MediaPlayerProvider } from "@/hooks/MediaPlayerContext";
 import { MetronomeProvider } from "@/hooks/MetronomeContext";
 import { ShowroomProvider } from "@/hooks/ShowroomContext";
+import { StudyTimerProvider } from "@/hooks/StudyTimerContext";
 import { FretboardProvider } from "@/hooks/useFretboardContext";
 import { useView, ViewProvider } from "@/hooks/ViewContext";
 
@@ -19,7 +20,9 @@ export default function App() {
 					<MetronomeProvider>
 						<ShowroomProvider>
 							<MediaPlayerProvider>
-								<AppShell />
+								<StudyTimerProvider>
+									<AppShell />
+								</StudyTimerProvider>
 							</MediaPlayerProvider>
 						</ShowroomProvider>
 					</MetronomeProvider>
