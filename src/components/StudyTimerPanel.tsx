@@ -26,6 +26,7 @@ export function StudyTimerPanel() {
 		setGoal,
 		start,
 		reset,
+		finish,
 	} = useStudyTimer();
 	const [confirming, setConfirming] = useState(false);
 
@@ -70,7 +71,15 @@ export function StudyTimerPanel() {
 						{goal}
 					</p>
 				)}
-				{confirming ? (
+				{mode === "up" ? (
+					<button
+						type="button"
+						onClick={finish}
+						className="flex h-9 items-center justify-center rounded-lg bg-[#16a34a] font-semibold text-sm text-white hover:bg-[#15803d]"
+					>
+						{t("ui.timer.done")}
+					</button>
+				) : confirming ? (
 					<div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/50 p-3 text-center">
 						<p className="font-medium text-secondary-foreground text-sm">
 							{t("ui.timer.giveUpConfirm")}

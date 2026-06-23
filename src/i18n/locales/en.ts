@@ -95,6 +95,7 @@ const en = {
 			giveUpConfirm: "Give up this session?",
 			keepGoing: "Keep going",
 			newSession: "New session",
+			done: "Done!",
 		},
 		intervals: {
 			"1": "Perfect Unison",

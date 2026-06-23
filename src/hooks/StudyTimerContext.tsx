@@ -56,6 +56,7 @@ interface StudyTimerState {
 	start: () => void;
 	pause: () => void;
 	reset: () => void;
+	finish: () => void;
 	dismissFinished: () => void;
 }
 
@@ -142,6 +143,12 @@ export function StudyTimerProvider({ children }: { children: ReactNode }) {
 		setFinished(false);
 	}, []);
 
+	// Finish a count-up session on demand (no countdown to reach zero).
+	const finish = useCallback(() => {
+		setRunning(false);
+		setFinished(true);
+	}, []);
+
 	const setGoal = useCallback((g: string) => setGoalState(g), []);
 	const dismissFinished = useCallback(() => setFinished(false), []);
 
@@ -160,6 +167,7 @@ export function StudyTimerProvider({ children }: { children: ReactNode }) {
 			start,
 			pause,
 			reset,
+			finish,
 			dismissFinished,
 		}),
 		[
@@ -177,6 +185,7 @@ export function StudyTimerProvider({ children }: { children: ReactNode }) {
 			pause,
 			reset,
 			dismissFinished,
+			finish,
 		],
 	);
 

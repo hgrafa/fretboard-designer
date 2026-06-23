@@ -98,6 +98,7 @@ const ptBR: TranslationSchema = {
 			giveUpConfirm: "Desistir desta sessão?",
 			keepGoing: "Continuar",
 			newSession: "Nova sessão",
+			done: "Pronto!",
 		},
 		intervals: {
 			"1": "Uníssono",
