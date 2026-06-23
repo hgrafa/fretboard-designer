@@ -1,8 +1,8 @@
 import { useRef } from "react";
 
 // Thumb diameter in px. The thumb centre and every preset label are positioned
-// with the SAME mapping, so a preset's label sits exactly under the thumb when
-// that value is selected (e.g. 1× lines up with the "1" stop).
+// with the SAME value→fraction mapping, so a preset's label sits exactly under
+// the thumb when that value is selected.
 const THUMB = 14;
 
 export interface SliderStop {
@@ -18,6 +18,9 @@ interface PlayerSliderProps {
 	ariaLabel: string;
 	stops: SliderStop[];
 	onChange: (value: number) => void;
+	// "log" spaces the track geometrically, so a value midway between min and max
+	// by ratio (e.g. 1 between 0.5 and 2) sits at the centre. Requires min > 0.
+	scale?: "linear" | "log";
 }
 
 export function PlayerSlider({
@@ -28,11 +31,28 @@ export function PlayerSlider({
 	ariaLabel,
 	stops,
 	onChange,
+	scale = "linear",
 }: PlayerSliderProps) {
 	const trackRef = useRef<HTMLDivElement>(null);
 
 	const clamp = (v: number) => Math.min(max, Math.max(min, v));
-	const fraction = (clamp(value) - min) / (max - min);
+
+	const valueToFraction = (v: number) => {
+		const c = clamp(v);
+		if (scale === "log") {
+			return (Math.log(c) - Math.log(min)) / (Math.log(max) - Math.log(min));
+		}
+		return (c - min) / (max - min);
+	};
+
+	const fractionToValue = (f: number) => {
+		if (scale === "log") {
+			return min * (max / min) ** f;
+		}
+		return min + f * (max - min);
+	};
+
+	const fraction = valueToFraction(value);
 	// Thumb centre travels from THUMB/2 to (width - THUMB/2); labels share it.
 	const pos = (f: number) =>
 		`calc(${THUMB / 2}px + ${f} * (100% - ${THUMB}px))`;
@@ -44,7 +64,7 @@ export function PlayerSlider({
 		const inner = rect.width - THUMB;
 		const x = Math.min(inner, Math.max(0, clientX - rect.left - THUMB / 2));
 		const f = inner > 0 ? x / inner : 0;
-		const stepped = Math.round((min + f * (max - min)) / step) * step;
+		const stepped = Math.round(fractionToValue(f) / step) * step;
 		onChange(clamp(Number(stepped.toFixed(4))));
 	}
 
@@ -96,14 +116,13 @@ export function PlayerSlider({
 			</div>
 			<div className="relative mt-1 h-4">
 				{stops.map((stop) => {
-					const f = (stop.value - min) / (max - min);
 					const active = Math.abs(value - stop.value) < 0.001;
 					return (
 						<button
 							key={stop.value}
 							type="button"
 							onClick={() => onChange(stop.value)}
-							style={{ left: pos(f) }}
+							style={{ left: pos(valueToFraction(stop.value)) }}
 							className={`-translate-x-1/2 absolute top-0 rounded px-1 font-mono text-xs transition-colors ${
 								active
 									? "font-semibold text-white"

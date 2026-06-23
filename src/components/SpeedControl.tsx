@@ -60,6 +60,7 @@ export function SpeedControl({
 						min={0.5}
 						max={2}
 						step={0.05}
+						scale="log"
 						ariaLabel={t("ui.showroom.playbackSpeed")}
 						stops={SPEED_STOPS}
 						onChange={onChange}
