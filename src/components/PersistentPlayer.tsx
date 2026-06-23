@@ -1,9 +1,9 @@
 import {
-	ChevronDown,
 	ChevronUp,
 	Pause,
 	Pin,
 	Play,
+	Replace,
 	RotateCcw,
 	RotateCw,
 	Trash2,
@@ -30,15 +30,18 @@ export function PersistentPlayer() {
 
 	const [expanded, setExpanded] = useState(false);
 	const [pinned, setPinned] = useState(false);
+	const [swapping, setSwapping] = useState(false);
 	const [seeking, setSeeking] = useState<number | null>(null);
 	const prevVolume = useRef(1);
 
 	const hasTrack = source !== null;
 	const muted = api.volume === 0;
 
-	// Auto-open the card when a track is loaded so the user can confirm.
+	// Auto-open the card when a track is loaded so the user can confirm, and
+	// leave the "switch track" loader once a new source lands.
 	useEffect(() => {
 		if (source) setExpanded(true);
+		setSwapping(false);
 	}, [source]);
 
 	function toggleMute() {
@@ -148,18 +151,25 @@ export function PersistentPlayer() {
 							>
 								<Pin className="size-4" />
 							</button>
-							<button
-								type="button"
-								aria-label={t("ui.player.minimize")}
-								onClick={() => setExpanded(false)}
-								className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
-							>
-								<ChevronDown className="size-4" />
-							</button>
+							{hasTrack && (
+								<button
+									type="button"
+									onClick={() => setSwapping((s) => !s)}
+									aria-pressed={swapping}
+									className={`flex h-7 items-center gap-1.5 rounded-md px-2.5 font-semibold text-xs transition-colors ${
+										swapping
+											? "bg-foreground text-background"
+											: "border border-border bg-card text-secondary-foreground hover:bg-muted"
+									}`}
+								>
+									<Replace className="size-3.5" />
+									{t("ui.player.switch")}
+								</button>
+							)}
 						</div>
 					</div>
 
-					{!hasTrack ? (
+					{!hasTrack || swapping ? (
 						<PlayerLoader />
 					) : (
 						<>

@@ -77,7 +77,7 @@ const ptBR: TranslationSchema = {
 		player: {
 			title: "Reprodução",
 			open: "Abrir player",
-			minimize: "Minimizar player",
+			switch: "Trocar",
 			pin: "Fixar player",
 			remove: "Remover faixa",
 		},

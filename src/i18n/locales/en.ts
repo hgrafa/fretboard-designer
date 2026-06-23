@@ -74,7 +74,7 @@ const en = {
 		player: {
 			title: "Playback",
 			open: "Open player",
-			minimize: "Minimize player",
+			switch: "Switch",
 			pin: "Pin player",
 			remove: "Remove track",
 		},
