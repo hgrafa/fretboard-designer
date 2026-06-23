@@ -41,8 +41,9 @@ export function VolumeControl({
 			</PopoverTrigger>
 			<PopoverContent
 				side="top"
-				align="center"
+				align="end"
 				sideOffset={10}
+				collisionPadding={12}
 				className="w-44 border-white/10 bg-[#2b2724] text-white"
 			>
 				<div className="flex flex-col items-center gap-3">
