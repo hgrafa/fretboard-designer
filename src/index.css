@@ -308,25 +308,28 @@
 	}
 }
 
-/* ---- Persistent player: "now playing" gradient border ---- */
-@keyframes borderSpin {
-	to {
-		transform: rotate(360deg);
+/* ---- Persistent player: "now playing" glowing border ---- */
+@keyframes glowPulse {
+	0%,
+	100% {
+		box-shadow:
+			0 10px 30px rgba(0, 0, 0, 0.45),
+			0 0 8px 0 rgba(242, 61, 120, 0.3);
+	}
+	50% {
+		box-shadow:
+			0 10px 30px rgba(0, 0, 0, 0.45),
+			0 0 26px 4px rgba(242, 61, 120, 0.65);
 	}
 }
-.player-glow-border {
-	background: conic-gradient(
-		from 0deg,
-		transparent 0deg,
-		#f23d78 55deg,
-		#f2683c 115deg,
-		#fba63f 175deg,
-		transparent 230deg
-	);
-	animation: borderSpin 4s linear infinite;
+.anim-player-glow {
+	animation: glowPulse 2s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-	.player-glow-border {
+	.anim-player-glow {
 		animation: none;
+		box-shadow:
+			0 10px 30px rgba(0, 0, 0, 0.45),
+			0 0 16px 2px rgba(242, 61, 120, 0.45);
 	}
 }
