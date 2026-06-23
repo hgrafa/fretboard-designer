@@ -6,7 +6,7 @@ import { fetchYouTubeTitle, parseYouTubeId } from "@/lib/youtube";
 
 export function PlayerLoader() {
 	const { t } = useTranslation();
-	const { setSource } = useMediaPlayerCtx();
+	const { setSource, recents } = useMediaPlayerCtx();
 	const [url, setUrl] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const fileId = useId();
@@ -78,6 +78,29 @@ export function PlayerLoader() {
 					onChange={(e) => loadFile(e.target.files?.[0])}
 				/>
 			</div>
+
+			{recents.length > 0 && (
+				<div className="flex flex-col gap-1.5 pt-0.5">
+					<span className="font-semibold text-[10px] text-white/40 uppercase tracking-wide">
+						{t("ui.player.recent")}
+					</span>
+					<div className="flex flex-col gap-1">
+						{recents.map((r) => (
+							<button
+								key={r.kind === "youtube" ? r.videoId : r.title}
+								type="button"
+								onClick={() => setSource(r)}
+								title={r.title}
+								className="flex items-center gap-2 truncate rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-left text-white/80 text-xs hover:bg-white/15"
+							>
+								<Youtube className="size-3.5 shrink-0 text-white/40" />
+								<span className="truncate">{r.title}</span>
+							</button>
+						))}
+					</div>
+				</div>
+			)}
+
 			{error && <p className="text-red-300 text-xs">{error}</p>}
 		</div>
 	);

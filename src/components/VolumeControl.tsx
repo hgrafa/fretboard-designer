@@ -7,7 +7,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 
-const VOLUME_STOPS: SliderStop[] = [
+export const VOLUME_STOPS: SliderStop[] = [
 	{ value: 0, label: "0" },
 	{ value: 0.25, label: "25" },
 	{ value: 0.5, label: "50" },

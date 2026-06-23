@@ -76,6 +76,7 @@ const en = {
 			open: "Open player",
 			switch: "Switch",
 			pin: "Pin player",
+			recent: "Recent",
 		},
 		intervals: {
 			"1": "Perfect Unison",

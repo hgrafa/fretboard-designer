@@ -1,17 +1,20 @@
 import {
 	ArrowLeftRight,
 	ChevronUp,
+	Gauge,
 	Pause,
 	Pin,
 	Play,
 	RotateCcw,
 	RotateCw,
+	Volume2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PlayerLoader } from "@/components/PlayerLoader";
-import { SpeedControl } from "@/components/SpeedControl";
-import { VolumeControl } from "@/components/VolumeControl";
+import { PlayerSlider } from "@/components/PlayerSlider";
+import { SPEED_STOPS, SpeedControl } from "@/components/SpeedControl";
+import { VOLUME_STOPS, VolumeControl } from "@/components/VolumeControl";
 import { useMediaPlayerCtx } from "@/hooks/MediaPlayerContext";
 
 function formatTime(seconds: number): string {
@@ -257,18 +260,43 @@ export function PersistentPlayer() {
 								</button>
 							</div>
 
-							{/* speed + volume, same level */}
-							<div className="flex items-center justify-center gap-3">
-								<SpeedControl
-									value={api.playbackRate}
-									onChange={api.setPlaybackRate}
-									onOpenChange={setSpeedOpen}
-								/>
-								<VolumeControl
-									value={api.volume}
-									onChange={api.setVolume}
-									onOpenChange={setVolumeOpen}
-								/>
+							{/* speed + volume sliders */}
+							<div className="flex flex-col gap-2.5 pt-1">
+								<div className="flex items-center gap-2.5">
+									<Gauge className="size-4 shrink-0 text-white/55" />
+									<div className="flex-1">
+										<PlayerSlider
+											value={api.playbackRate}
+											min={0.5}
+											max={2}
+											step={0.05}
+											scale="log"
+											ariaLabel={t("ui.showroom.playbackSpeed")}
+											stops={SPEED_STOPS}
+											onChange={api.setPlaybackRate}
+										/>
+									</div>
+									<span className="w-11 shrink-0 text-right font-mono text-white/70 text-xs tabular-nums">
+										{`${+api.playbackRate.toFixed(2)}×`}
+									</span>
+								</div>
+								<div className="flex items-center gap-2.5">
+									<Volume2 className="size-4 shrink-0 text-white/55" />
+									<div className="flex-1">
+										<PlayerSlider
+											value={api.volume}
+											min={0}
+											max={1}
+											step={0.01}
+											ariaLabel={t("ui.showroom.volume")}
+											stops={VOLUME_STOPS}
+											onChange={api.setVolume}
+										/>
+									</div>
+									<span className="w-11 shrink-0 text-right font-mono text-white/70 text-xs tabular-nums">
+										{`${Math.round(api.volume * 100)}%`}
+									</span>
+								</div>
 							</div>
 						</>
 					)}

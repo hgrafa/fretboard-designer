@@ -79,6 +79,7 @@ const ptBR: TranslationSchema = {
 			open: "Abrir player",
 			switch: "Trocar",
 			pin: "Fixar player",
+			recent: "Recentes",
 		},
 		intervals: {
 			"1": "Uníssono",
