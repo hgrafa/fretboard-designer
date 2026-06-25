@@ -38,7 +38,7 @@ export function RecentDocuments() {
 								type="button"
 								onClick={() => handleOpen(doc.id, doc.name)}
 								title={doc.name}
-								className="group flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm transition-colors even:bg-muted/40 hover:bg-accent hover:text-accent-foreground"
+								className="group flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm transition-colors odd:bg-black/[0.04] hover:bg-accent hover:text-accent-foreground dark:odd:bg-white/[0.05]"
 							>
 								<FileText className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-accent-foreground" />
 								<span className="min-w-0 truncate">{doc.name}</span>
