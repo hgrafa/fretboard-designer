@@ -8,7 +8,8 @@ across reloads.
 ## Components
 - `ShowroomView` — page composition; PDF drag-and-drop onto the page.
 - `PdfViewer` — native `<iframe>` viewer + empty-state upload; validates `application/pdf`.
-- `RecentDocuments` — empty-state quick-reopen list (renders nothing when there's no
+- `RecentDocuments` — empty-state quick-reopen box (a `bg-card` panel showing up to 5
+  recent files, or a "your recent files will appear here" placeholder when there's no
   history). Click re-opens via `openRecentDocument(id)`; on failure shows an inline
   "couldn't reopen" notice (same amber pattern as `pdfUnavailable`).
 

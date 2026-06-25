@@ -76,6 +76,7 @@ const ptBR: TranslationSchema = {
 			pdfUnavailable:
 				"Salvamos “{{name}}”, mas não foi possível reabri-lo. Envie o arquivo novamente.",
 			recentTitle: "Arquivos recentes",
+			recentEmpty: "Seus arquivos abertos recentemente aparecerão aqui.",
 			recentUnavailable:
 				"Não foi possível reabrir “{{name}}”. Envie o arquivo novamente.",
 		},
