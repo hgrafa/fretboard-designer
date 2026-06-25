@@ -1,6 +1,7 @@
 import "fake-indexeddb/auto";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { IDBFactory } from "fake-indexeddb";
+import { useState } from "react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { loadStoredDocument, saveStoredDocument } from "@/lib/documentStorage";
 import { addRecentDocument } from "@/lib/recentDocuments";
@@ -91,9 +92,13 @@ describe("ShowroomContext persistence", () => {
 function RecentProbe() {
 	const { currentDocument, recentDocuments, openDocument, openRecentDocument } =
 		useShowroom();
+	// Track the in-flight re-open so tests can await its (otherwise fire-and-forget)
+	// persistence writes before the suite resets storage — avoids cross-test leakage.
+	const [busy, setBusy] = useState(false);
 	return (
 		<div>
 			<span data-testid="doc">{currentDocument?.name ?? "none"}</span>
+			<span data-testid="busy">{busy ? "busy" : "idle"}</span>
 			<span data-testid="recent">
 				{recentDocuments.map((d) => d.name).join(",") || "none"}
 			</span>
@@ -112,7 +117,11 @@ function RecentProbe() {
 					key={d.id}
 					type="button"
 					data-testid={`reopen-${d.name}`}
-					onClick={() => openRecentDocument(d.id)}
+					onClick={async () => {
+						setBusy(true);
+						await openRecentDocument(d.id);
+						setBusy(false);
+					}}
 				>
 					reopen {d.name}
 				</button>
@@ -143,6 +152,10 @@ describe("ShowroomContext recent files", () => {
 		await waitFor(() =>
 			expect(screen.getByTestId("doc")).toHaveTextContent("score.pdf"),
 		);
+		// Wait for the re-open's persistence writes to settle (test isolation).
+		await waitFor(() =>
+			expect(screen.getByTestId("busy")).toHaveTextContent("idle"),
+		);
 	});
 
 	it("drops a history entry whose bytes can no longer be read", async () => {
@@ -164,6 +177,9 @@ describe("ShowroomContext recent files", () => {
 		// The unreadable entry is removed and no document opens.
 		await waitFor(() =>
 			expect(screen.getByTestId("recent")).toHaveTextContent("none"),
+		);
+		await waitFor(() =>
+			expect(screen.getByTestId("busy")).toHaveTextContent("idle"),
 		);
 		expect(screen.getByTestId("doc")).toHaveTextContent("none");
 	});
