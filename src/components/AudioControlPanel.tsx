@@ -1,5 +1,7 @@
 import { RefreshCw, SlidersHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import type { NoteTone } from "@/audio/notePlayer";
+import { Button } from "@/components/ui/button";
 import {
 	Popover,
 	PopoverContent,
@@ -12,7 +14,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { useMetronome } from "@/hooks/MetronomeContext";
+import { useNotePlayback } from "@/hooks/NotePlaybackContext";
 
 // Radix <Select.Item> forbids an empty-string value (it's reserved for "clear
 // selection"), but the default output's deviceId IS "". Bridge with a sentinel.
@@ -22,8 +26,8 @@ const toSelectValue = (deviceId: string) =>
 const fromSelectValue = (value: string) =>
 	value === DEFAULT_VALUE ? "" : value;
 
-// One routable audio output. As more sources are added (e.g. note playback),
-// each becomes a row here with its own device dropdown.
+// One routable audio output. Each source (metronome, notes, …) is a row here
+// with its own device dropdown, so sounds can play on different devices.
 interface OutputRow {
 	id: string;
 	label: string;
@@ -31,13 +35,33 @@ interface OutputRow {
 	setDeviceId: (id: string) => void;
 }
 
+const TONE_OPTIONS: { value: NoteTone; labelKey: string }[] = [
+	{ value: "plucked", labelKey: "ui.audio.tonePlucked" },
+	{ value: "clean", labelKey: "ui.audio.toneClean" },
+	{ value: "warm", labelKey: "ui.audio.toneWarm" },
+];
+
 export function AudioControlPanel() {
 	const { t } = useTranslation();
 	const { routingSupported, devices, deviceId, setDeviceId, refreshDevices } =
 		useMetronome();
+	const {
+		deviceId: notesDeviceId,
+		setDeviceId: setNotesDeviceId,
+		tone,
+		setTone,
+		volume,
+		setVolume,
+	} = useNotePlayback();
 
 	const rows: OutputRow[] = [
 		{ id: "metronome", label: t("ui.audio.metronome"), deviceId, setDeviceId },
+		{
+			id: "notes",
+			label: t("ui.audio.notes"),
+			deviceId: notesDeviceId,
+			setDeviceId: setNotesDeviceId,
+		},
 	];
 
 	return (
@@ -103,6 +127,48 @@ export function AudioControlPanel() {
 						{t("ui.audio.noRoutingMsg")}
 					</p>
 				)}
+
+				{/* Note-playback voice — works regardless of per-device routing. */}
+				<div className="mt-4 space-y-3 border-t border-border pt-4">
+					<p className="text-sm font-semibold">{t("ui.audio.notesTitle")}</p>
+
+					<div className="space-y-1.5">
+						<span className="text-xs font-medium">{t("ui.audio.tone")}</span>
+						<div className="grid grid-cols-3 gap-1.5">
+							{TONE_OPTIONS.map((opt) => (
+								<Button
+									key={opt.value}
+									type="button"
+									size="sm"
+									variant={tone === opt.value ? "default" : "outline"}
+									aria-pressed={tone === opt.value}
+									onClick={() => setTone(opt.value)}
+								>
+									{t(opt.labelKey)}
+								</Button>
+							))}
+						</div>
+					</div>
+
+					<div className="space-y-1.5">
+						<div className="flex items-center justify-between">
+							<span className="text-xs font-medium">
+								{t("ui.audio.volume")}
+							</span>
+							<span className="text-[0.7rem] text-muted-foreground tabular-nums">
+								{Math.round(volume * 100)}%
+							</span>
+						</div>
+						<Slider
+							value={[Math.round(volume * 100)]}
+							min={0}
+							max={100}
+							step={1}
+							aria-label={t("ui.audio.volume")}
+							onValueChange={([v]) => setVolume(v / 100)}
+						/>
+					</div>
+				</div>
 			</PopoverContent>
 		</Popover>
 	);
