@@ -72,6 +72,9 @@ const en = {
 			pdfClose: "Close",
 			pdfUnavailable:
 				"We saved “{{name}}” but couldn't reopen it. Please upload it again.",
+			recentTitle: "Recent files",
+			recentEmpty: "Your recently opened files will appear here.",
+			recentUnavailable: "Couldn't reopen “{{name}}”. Please upload it again.",
 		},
 		player: {
 			title: "Playback",

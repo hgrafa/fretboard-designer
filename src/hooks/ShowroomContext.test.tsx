@@ -1,8 +1,10 @@
 import "fake-indexeddb/auto";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { IDBFactory } from "fake-indexeddb";
+import { useState } from "react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { loadStoredDocument, saveStoredDocument } from "@/lib/documentStorage";
+import { addRecentDocument } from "@/lib/recentDocuments";
 import { ShowroomProvider, useShowroom } from "./ShowroomContext";
 
 beforeEach(() => {
@@ -84,5 +86,101 @@ describe("ShowroomContext persistence", () => {
 		fireEvent.click(screen.getByText("close"));
 		expect(screen.getByTestId("doc")).toHaveTextContent("none");
 		await waitFor(async () => expect(await loadStoredDocument()).toBeNull());
+	});
+});
+
+function RecentProbe() {
+	const { currentDocument, recentDocuments, openDocument, openRecentDocument } =
+		useShowroom();
+	// Track the in-flight re-open so tests can await its (otherwise fire-and-forget)
+	// persistence writes before the suite resets storage — avoids cross-test leakage.
+	const [busy, setBusy] = useState(false);
+	return (
+		<div>
+			<span data-testid="doc">{currentDocument?.name ?? "none"}</span>
+			<span data-testid="busy">{busy ? "busy" : "idle"}</span>
+			<span data-testid="recent">
+				{recentDocuments.map((d) => d.name).join(",") || "none"}
+			</span>
+			<button
+				type="button"
+				onClick={() =>
+					openDocument(
+						new File(["%PDF body"], "score.pdf", { type: "application/pdf" }),
+					)
+				}
+			>
+				open
+			</button>
+			{recentDocuments.map((d) => (
+				<button
+					key={d.id}
+					type="button"
+					data-testid={`reopen-${d.name}`}
+					onClick={async () => {
+						setBusy(true);
+						await openRecentDocument(d.id);
+						setBusy(false);
+					}}
+				>
+					reopen {d.name}
+				</button>
+			))}
+		</div>
+	);
+}
+
+describe("ShowroomContext recent files", () => {
+	function renderRecent() {
+		return render(
+			<ShowroomProvider>
+				<RecentProbe />
+			</ShowroomProvider>,
+		);
+	}
+
+	it("remembers an opened document and re-opens it from history", async () => {
+		renderRecent();
+
+		fireEvent.click(screen.getByText("open"));
+		await waitFor(() =>
+			expect(screen.getByTestId("recent")).toHaveTextContent("score.pdf"),
+		);
+
+		// Re-opening from history shows the document again.
+		fireEvent.click(screen.getByTestId("reopen-score.pdf"));
+		await waitFor(() =>
+			expect(screen.getByTestId("doc")).toHaveTextContent("score.pdf"),
+		);
+		// Wait for the re-open's persistence writes to settle (test isolation).
+		await waitFor(() =>
+			expect(screen.getByTestId("busy")).toHaveTextContent("idle"),
+		);
+	});
+
+	it("drops a history entry whose bytes can no longer be read", async () => {
+		// Seed a history entry, then wipe IndexedDB so its bytes are gone.
+		await addRecentDocument(
+			"ghost.pdf",
+			new File(["%PDF"], "ghost.pdf", { type: "application/pdf" }),
+		);
+		const bytesGone = new IDBFactory();
+
+		renderRecent();
+		await waitFor(() =>
+			expect(screen.getByTestId("recent")).toHaveTextContent("ghost.pdf"),
+		);
+
+		globalThis.indexedDB = bytesGone;
+		fireEvent.click(screen.getByTestId("reopen-ghost.pdf"));
+
+		// The unreadable entry is removed and no document opens.
+		await waitFor(() =>
+			expect(screen.getByTestId("recent")).toHaveTextContent("none"),
+		);
+		await waitFor(() =>
+			expect(screen.getByTestId("busy")).toHaveTextContent("idle"),
+		);
+		expect(screen.getByTestId("doc")).toHaveTextContent("none");
 	});
 });
